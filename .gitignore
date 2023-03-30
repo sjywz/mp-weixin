@@ -2,6 +2,7 @@
 /public/build
 /public/hot
 /public/storage
+/public/*.txt
 /storage/*.key
 /vendor
 .env
@@ -17,3 +18,4 @@ yarn-error.log
 /.idea
 /.vscode
 dcat_admin_ide_helper.php
+.DS_Store

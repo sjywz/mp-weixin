@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PlatformController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -12,6 +13,12 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+Route::post('/platauth/{id}',[PlatformController::class, 'auth']);
+Route::post('/platmsg/{id}/{appid}',[PlatformController::class, 'msg']);
+Route::any('/platcall/{id}',[PlatformController::class, 'call']);
+
+Route::get('/plattest/{id}',[PlatformController::class, 'test']);
 
 Route::get('/', function () {
     return view('welcome');

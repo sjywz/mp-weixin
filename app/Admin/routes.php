@@ -15,4 +15,6 @@ Route::group([
     $router->get('/', 'HomeController@index');
     $router->resource('/mp', 'MpController');
     $router->resource('/platform', 'PlatformController');
+    $router->resource('/platevent','PlatformEventController');
+    $router->resource('/mpmessage','MpMessageController');
 });
