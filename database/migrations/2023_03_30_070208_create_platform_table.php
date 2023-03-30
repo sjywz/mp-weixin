@@ -19,6 +19,8 @@ class CreatePlatformTable extends Migration
             $table->string('icon')->nullable();
             $table->string('appid');
             $table->string('app_secret');
+            $table->string('verify_token');
+            $table->string('msg_key');
             $table->string('desc')->nullable();
             $table->timestamps();
             $table->softDeletes();

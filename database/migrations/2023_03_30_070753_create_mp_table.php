@@ -20,6 +20,8 @@ class CreateMpTable extends Migration
             $table->integer('pid')->default(0);
             $table->string('appid')->nullable();
             $table->string('app_secret')->nullable();
+            $table->string('verify_token')->nullable();
+            $table->string('msg_key')->nullable();
             $table->tinyInteger('type')->default(0);
             $table->string('desc')->nullable();
             $table->timestamps();

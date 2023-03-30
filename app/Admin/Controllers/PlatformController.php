@@ -18,11 +18,15 @@ class PlatformController extends AdminController
     protected function grid()
     {
         return Grid::make(new Platform(), function (Grid $grid) {
+            $grid->model()->orderBy('id', 'desc');
+
             $grid->column('id')->sortable();
             $grid->column('name');
             $grid->column('icon');
             $grid->column('appid');
             $grid->column('app_secret');
+            $grid->column('verify_token');
+            $grid->column('msg_key');
             $grid->column('desc');
             $grid->column('created_at');
             $grid->column('updated_at')->sortable();
@@ -49,6 +53,8 @@ class PlatformController extends AdminController
             $show->field('icon');
             $show->field('appid');
             $show->field('app_secret');
+            $show->field('verify_token');
+            $show->field('msg_key');
             $show->field('desc');
             $show->field('created_at');
             $show->field('updated_at');
@@ -68,6 +74,8 @@ class PlatformController extends AdminController
             $form->image('icon')->autoUpload();
             $form->text('appid')->required();
             $form->text('app_secret')->required();
+            $form->text('verify_token')->required();
+            $form->text('msg_key')->required();
             $form->textarea('desc');
 
             $form->display('created_at');
