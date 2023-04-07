@@ -8,16 +8,19 @@ class PlatformService
 {
     public function getApp($id)
     {
-        $plat = Platform::find($id);
+        $plat = Platform::where('id',$id)->orWhere('appid',$id)->first();
+        if(empty($plat)){
+            throw new \Exception('平台信息不存在');
+        }
         $config = [
-            'app_id'  => $plat->appid, // 开放平台账号的 appid
+            'app_id'  => $plat->appid,
             'secret'  => $plat->app_secret,
             'token'   => $plat->verify_token,
             'aes_key' => $plat->msg_key,
             'http' => [
-                'throw'  => true,
+                'throw'   => true,
                 'timeout' => 5.0,
-                'retry' => true,
+                'retry'   => true,
             ],
         ];
         $app = new Application($config);

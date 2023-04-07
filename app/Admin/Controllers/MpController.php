@@ -7,7 +7,9 @@ use App\Models\Mp as ModelsMp;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
+use App\Admin\RowAction\UpdateMpInfo;
 use Dcat\Admin\Http\Controllers\AdminController;
+use Dcat\Admin\Widgets\Card;
 
 class MpController extends AdminController
 {
@@ -23,20 +25,42 @@ class MpController extends AdminController
 
             $grid->column('id')->sortable();
             $grid->column('name');
-            $grid->column('icon');
-            $grid->column('pid');
+            $grid->column('icon')->image(50,50);
+            $grid->column('plat_appid');
             $grid->column('appid');
-            $grid->column('app_secret');
-            $grid->column('verify_token');
-            $grid->column('msg_key');
-            $grid->column('type')->using(ModelsMp::$type);
+            $grid->column('type')->using(ModelsMp::$type)->badge([
+                0 => 'primary',
+                1 => 'info'
+            ]);
+            $grid->column('account_type')->display(function($type){
+                return ModelsMp::$accountType[$this->type][$type] ?? '未知';
+            })->label('#666');
+            $grid->column('status')->using(ModelsMp::$accountStatus)->label([
+                1 => 'success',
+                14 => 'danger',
+                16 => 'default',
+                18 => 'warning',
+                19 => 'danger'
+            ]);
             $grid->column('desc');
+            $grid->column('test','更多')->display('查看')->expand(function(){
+                $content = [
+                    '<div>'.$this->app_secret.'</div>',
+                    '<div>'.$this->verify_token.'</div>',
+                    '<div>'.$this->msg_key.'</div>'
+                ];
+                $card = new Card(null, join('',$content));
+                return "<div style='padding:10px 10px 0'>$card</div>";
+            });
             $grid->column('created_at');
             $grid->column('updated_at')->sortable();
 
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->equal('id');
+            });
 
+            $grid->actions(function (Grid\Displayers\Actions $actions) {
+                $actions->append(new UpdateMpInfo(ModelsMp::class));
             });
         });
     }

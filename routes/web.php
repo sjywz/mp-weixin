@@ -14,12 +14,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('/platauth/{id}',[PlatformController::class, 'auth']);
-Route::post('/platmsg/{id}/{appid}',[PlatformController::class, 'msg']);
-Route::any('/platcall/{id}',[PlatformController::class, 'call']);
-
-Route::get('/plattest/{id}',[PlatformController::class, 'test']);
+Route::any('/platauth/{id}',[PlatformController::class, 'auth']);
+Route::any('/platmsg/{id}/{appid}',[PlatformController::class, 'msg']);
 
 Route::get('/', function () {
-    return view('welcome');
+    return 'welcome';
 });
