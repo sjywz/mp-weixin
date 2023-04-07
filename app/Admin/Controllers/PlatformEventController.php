@@ -18,17 +18,17 @@ class PlatformEventController extends AdminController
     protected function grid()
     {
         return Grid::make(new PlatformEvent(), function (Grid $grid) {
+            $grid->model()->orderBy('id', 'desc');
+
             $grid->column('id')->sortable();
             $grid->column('appid');
             $grid->column('create_time');
             $grid->column('info_type');
             $grid->column('rest');
-            $grid->column('created_at');
-            $grid->column('updated_at')->sortable();
-        
+
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->equal('id');
-        
+
             });
         });
     }
@@ -48,8 +48,6 @@ class PlatformEventController extends AdminController
             $show->field('create_time');
             $show->field('info_type');
             $show->field('rest');
-            $show->field('created_at');
-            $show->field('updated_at');
         });
     }
 
@@ -66,9 +64,6 @@ class PlatformEventController extends AdminController
             $form->text('create_time');
             $form->text('info_type');
             $form->text('rest');
-        
-            $form->display('created_at');
-            $form->display('updated_at');
         });
     }
 }

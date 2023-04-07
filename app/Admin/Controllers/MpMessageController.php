@@ -18,6 +18,8 @@ class MpMessageController extends AdminController
     protected function grid()
     {
         return Grid::make(new MpMessage(), function (Grid $grid) {
+            $grid->model()->orderBy('id', 'desc');
+
             $grid->column('id')->sortable();
             $grid->column('type');
             $grid->column('msgid');
@@ -26,12 +28,10 @@ class MpMessageController extends AdminController
             $grid->column('to');
             $grid->column('event');
             $grid->column('rest');
-            $grid->column('created_at');
-            $grid->column('updated_at')->sortable();
-        
+
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->equal('id');
-        
+
             });
         });
     }
@@ -54,8 +54,6 @@ class MpMessageController extends AdminController
             $show->field('to');
             $show->field('event');
             $show->field('rest');
-            $show->field('created_at');
-            $show->field('updated_at');
         });
     }
 
@@ -75,9 +73,6 @@ class MpMessageController extends AdminController
             $form->text('to');
             $form->text('event');
             $form->text('rest');
-        
-            $form->display('created_at');
-            $form->display('updated_at');
         });
     }
 }

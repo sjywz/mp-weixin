@@ -25,8 +25,9 @@ class PlatformController extends Controller
 
             $server->with(function($message, \Closure $next) {
                 $infoType = $message->InfoType;
-                $createTime = $message->CreateTime;
                 $appId = $message->AppId;
+                $createTime = $message->CreateTime;
+                $AuthorizerAppid = $message->AuthorizerAppid;
 
                 if($infoType === 'component_verify_ticket'){
 
@@ -58,25 +59,6 @@ class PlatformController extends Controller
         }
     }
 
-    public function call($id)
-    {
-        $auth_code = request()->get('auth_code');
-        $plat = new PlatformService();
-        $app = $plat->getApp($id);
-        $server = $app->getServer();
-        $authorization = $app->getAuthorization($auth_code);
-
-        $appid = $authorization->getAppId();
-        $accessToken = $authorization->getAccessToken();
-        $refreshToken = $authorization->getRefreshToken();
-
-        print_r($appid);
-        print_r($accessToken);
-        print_r($refreshToken);
-
-        dd($authorization->toArray());
-    }
-
     public function msg($id,$appid)
     {
         DB::table('log')->insert([
@@ -105,9 +87,34 @@ class PlatformController extends Controller
                     'from' => $openid,
                     'to' => $to,
                     'event' => $event,
-                    'rest' => json_encode(collect($message)->toArray())
+                    'rest' => json_encode([
+                        'test' => collect($message)->toArray(),
+                    ])
                 ]);
                 return $next($message);
+            })->with(function($message, \Closure $next) use ($appid){
+                $type = 'text';
+                $content = '你好';
+                $openid = $message->FromUserName;
+                $to = $message->ToUserName;
+                $time = time();
+
+                $reply = [
+                    'MsgType' => $type,
+                    'Content' => $content,
+                ];
+
+                MpMessage::create([
+                    'type' => $type,
+                    'msgid' => uniqid(),
+                    'create_time' => $time,
+                    'appid' => $appid,
+                    'from' => $to,
+                    'to' => $openid,
+                    'rest' => json_encode($reply)
+                ]);
+
+                return $content;
             });
 
             return $server->serve();
@@ -117,6 +124,53 @@ class PlatformController extends Controller
                 'add_time' => date('Y-m-d H:i:s')
             ]);
         }
+    }
+
+    public function call($id)
+    {
+        $auth_code = request()->get('auth_code');
+        $plat = new PlatformService();
+        $app = $plat->getApp($id);
+
+        $account = $app->getAccount();
+        $pAppid = $account->getAppId();
+
+
+        $server = $app->getServer();
+        $authorization = $app->getAuthorization($auth_code);
+
+        $appid = $authorization->getAppId();
+        $accessToken = $authorization->getAccessToken();
+        $refreshToken = $authorization->getRefreshToken();
+
+        $authorizationInfo = $authorization->authorization_info;
+
+        $aAppid = $authorizationInfo['authorizer_appid'];
+        $aAccessToken = $authorizationInfo['authorizer_access_token'];
+        $aRefreshToken = $authorizationInfo['authorizer_refresh_token'];
+        $expires_in = $authorizationInfo['expires_in'];
+        $func_info = $authorizationInfo['func_info'];
+
+
+        $data = [
+            'id' => '',
+            'name' => '',
+            'icon' => '',
+            'appid' => '',
+            'app_secret' => '',
+            'verify_token' => '',
+            ''
+        ];
+        echo '<pre>';
+        print_r($appid);
+        echo '<hr>';
+        print_r($refreshToken);
+        echo '<hr>';
+        echo $pAppid;
+        echo '<hr>';
+        print_r($accessToken);
+        echo '<hr>';
+        print_r($authorization->authorization_info);
     }
 
     public function test($id)

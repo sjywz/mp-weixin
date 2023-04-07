@@ -23,7 +23,7 @@ class CreateMpMessageTable extends Migration
             $table->string('to')->index();
             $table->string('event')->nullable();
             $table->longText('rest')->nullable();
-            $table->timestamps();
+            $table->integer('sender')->nullable();
         });
     }
 

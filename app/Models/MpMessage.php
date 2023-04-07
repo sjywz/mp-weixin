@@ -2,13 +2,12 @@
 
 namespace App\Models;
 
-use Dcat\Admin\Traits\HasDateTimeFormatter;
-
 use Illuminate\Database\Eloquent\Model;
 
 class MpMessage extends Model
 {
-	use HasDateTimeFormatter;
+    public $timestamps = false;
+
     protected $table = 'mp_message';
 
     protected $fillable = [

@@ -19,7 +19,6 @@ class CreatePlatformEventTable extends Migration
             $table->integer('create_time');
             $table->string('info_type');
             $table->longText('rest')->nullable();
-            $table->timestamps();
         });
     }
 
