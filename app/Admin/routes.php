@@ -14,11 +14,12 @@ Route::group([
 
     $router->get('/', 'HomeController@index');
     $router->resource('/mp', 'MpController');
-    
+
     $router->get('/platform/auth/{id}', 'PlatformController@auth');
     $router->get('/platform/call/{id}', 'PlatformController@call');
 
     $router->resource('/platform', 'PlatformController');
     $router->resource('/platevent','PlatformEventController');
     $router->resource('/mpmessage','MpMessageController');
+    $router->resource('/mpmenu','MpMenuController');
 });
