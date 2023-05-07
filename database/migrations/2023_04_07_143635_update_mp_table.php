@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('origin_id', 50)->nullable()->after('created_at');
             $table->string('refresh_token', 100)->nullable()->after('created_at');
             $table->string('principal_name', 100)->nullable()->after('created_at');
-            $table->text('func_info')->nullable()->after('created_at');
+            $table->longText('func_info')->nullable()->after('created_at');
         });
     }
 
