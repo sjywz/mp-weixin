@@ -22,13 +22,13 @@ class PlatformEventController extends AdminController
 
             $grid->column('id')->sortable();
             $grid->column('appid');
+            $grid->column('info_type')->label();
+            $grid->column('plat_appid');
             $grid->column('create_time');
-            $grid->column('info_type');
-            $grid->column('rest');
 
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->equal('id');
-
+                $filter->equal('info_type');
             });
         });
     }

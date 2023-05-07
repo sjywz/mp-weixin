@@ -2,113 +2,116 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MpMessage;
-use App\Models\PlatformEvent;
 use App\Models\Mp;
-use App\Services\PlatformService;
-use Illuminate\Support\Facades\DB;
+use App\Services\MsgService;
+use App\Services\WeixinService;
+use App\Services\ReplyService;
 use Illuminate\Support\Facades\Log;
 
 class PlatformController extends Controller
 {
-    public function auth($id)
+    public function mp($id)
     {
-        Log::info('Platform event', ['id'=>$id]);
         try{
-            $plat = new PlatformService();
-            $app = $plat->getApp($id);
+            $weixin = new WeixinService();
+            $app = $weixin->getApp($id,true);
             $server = $app->getServer();
 
-            $server->with(function($message, \Closure $next) {
-                $infoType = $message->InfoType;
-                $appId = $message->AppId;
-                $createTime = $message->CreateTime;
-                $AuthorizerAppid = $message->AuthorizerAppid;
+            $account = $app->getAccount();
+            $appid = $account->getAppId();
 
-                if($infoType === 'component_verify_ticket'){
-
-                }else if($infoType === 'authorized'){
-
-                }else if($infoType === 'updateauthorized'){
-
-                }else if($infoType === 'unauthorized'){
-
-                }else if($infoType === 'notify_third_fasteregister'){
-
-                }
-
-                PlatformEvent::create([
-                    'appid' => $appId,
-                    'create_time' => $createTime,
-                    'info_type' => $infoType,
-                    'rest' => json_encode(collect($message)->toArray())
-                ]);
+            $server->with(function($message, \Closure $next){
                 return $next($message);
+            })->with(function($message, \Closure $next) use ($appid){
+                MsgService::falsh($message,$appid);
+                return $next($message);
+            })->with(function($message) use ($appid) {
+                return ReplyService::handle($appid,$message);
             });
 
             return $server->serve();
         }catch(\Exception $e){
-            Log::warning('Platform message', ['id'=>$id,'err'=>$e->getMessage()]);
+            Log::warning('MP message', [
+                'id'=>$id,
+                'err'=>$e->getMessage(),
+            ]);
         }
     }
 
     public function msg($id,$appid)
     {
-        Log::info('Platform message', ['id'=>$id,'appid'=>$appid]);
         try{
-            $plat = new PlatformService();
-            $app = $plat->getApp($id);
+            $weixin = new WeixinService();
+            $app = $weixin->getApp($id);
             $server = $app->getServer();
 
-            $server->with(function($message, \Closure $next) use ($appid){
+            $account = $app->getAccount();
+            $platAppid = $account->getAppId();
+
+            $server->with(function($message, \Closure $next){
                 $msgType = $message->MsgType;
-                $msgId = $message->MsgId;
-                $createTime = $message->CreateTime;
-                $openid = $message->FromUserName;
-                $to = $message->ToUserName;
-                $event = $message->Event;
-
-                MpMessage::create([
-                    'type' => $msgType,
-                    'msgid' => $msgId,
-                    'create_time' => $createTime,
-                    'appid' => $appid,
-                    'from' => $openid,
-                    'to' => $to,
-                    'event' => $event,
-                    'rest' => json_encode([
-                        'test' => collect($message)->toArray(),
-                    ])
-                ]);
+                $content = $message->Content;
+                $testMsgText = 'TESTCOMPONENT_MSG_TYPE_TEXT';
+                if($msgType === 'text' && $content === $testMsgText){
+                    return $testMsgText.'_callback';
+                }
                 return $next($message);
-            })->with(function($message, \Closure $next) use ($appid){
-                $type = 'text';
-                $content = '你好';
-                $openid = $message->FromUserName;
-                $to = $message->ToUserName;
-                $time = time();
-
-                $reply = [
-                    'MsgType' => $type,
-                    'Content' => $content,
-                ];
-
-                MpMessage::create([
-                    'type' => $type,
-                    'msgid' => uniqid(),
-                    'create_time' => $time,
-                    'appid' => $appid,
-                    'from' => $to,
-                    'to' => $openid,
-                    'rest' => json_encode($reply)
-                ]);
-
-                return $reply;
+            })->with(function($message, \Closure $next) use ($appid,$platAppid){
+                MsgService::falsh($message,$appid,$platAppid);
+                return $next($message);
+            })->with(function($message) use ($appid,$platAppid){
+                return ReplyService::handle($appid,$message,$platAppid);
             });
 
             return $server->serve();
         }catch(\Exception $e){
-            Log::warning('Platform message', ['id'=>$id,'appid'=>$appid,'err'=>$e->getMessage()]);
+            Log::warning('Platform message', [
+                'id'=>$id,
+                'appid'=>$appid,
+                'err'=>$e->getMessage()
+            ]);
+        }
+    }
+
+    public function auth($id)
+    {
+        try{
+            $weixin = new WeixinService();
+            $app = $weixin->getApp($id);
+            $server = $app->getServer();
+
+            $account = $app->getAccount();
+            $platAppid = $account->getAppId();
+
+            $server->with(function($message, \Closure $next) use ($platAppid) {
+                $infoType = $message->InfoType;
+                $aAppid = $message->AuthorizerAppid;
+
+                if($infoType === 'unauthorized'){
+                    Mp::where('appid',$aAppid)->where('plat_appid',$platAppid)->delete();
+                }else if($infoType === 'notify_third_fasteregister'){
+
+                }else if($infoType === 'component_verify_ticket'){
+
+                }else if($infoType === 'authorized'){
+
+                }else if($infoType === 'updateauthorized'){
+
+                }else{
+
+                }
+                return $next($message);
+            })->with(function($message, \Closure $next) use ($platAppid) {
+                MsgService::flashPlatEvent($message,$platAppid);
+                return $next($message);
+            });
+
+            return $server->serve();
+        }catch(\Exception $e){
+            Log::warning('Platform message', [
+                'id'=>$id,
+                'err'=>$e->getMessage()
+            ]);
         }
     }
 }

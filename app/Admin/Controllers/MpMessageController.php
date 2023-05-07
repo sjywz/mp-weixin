@@ -21,17 +21,26 @@ class MpMessageController extends AdminController
             $grid->model()->orderBy('id', 'desc');
 
             $grid->column('id')->sortable();
-            $grid->column('type');
+            $grid->column('type')->label();
             $grid->column('msgid');
-            $grid->column('create_time');
             $grid->column('from');
             $grid->column('to');
             $grid->column('event');
-            $grid->column('rest');
+            $grid->column('event_key');
+            $grid->column('appid');
+            $grid->column('plat_appid');
+            $grid->column('content')->display(function($content){
+                return "<div style='width:500px;overflow:auto'>$content</div>";
+            });
+            $grid->column('create_time');
 
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->equal('id');
-
+                $filter->equal('type');
+                $filter->equal('msgid');
+                $filter->equal('event');
+                $filter->equal('appid');
+                $filter->equal('plat_appid');
             });
         });
     }

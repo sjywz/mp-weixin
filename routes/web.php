@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::any('/mp/{id}',[PlatformController::class, 'mp']);
 Route::any('/platauth/{id}',[PlatformController::class, 'auth']);
 Route::any('/platmsg/{id}/{appid}',[PlatformController::class, 'msg']);
 

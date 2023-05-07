@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class PlatformEvent extends Model
 {
@@ -14,6 +15,14 @@ class PlatformEvent extends Model
         'appid',
         'create_time',
         'info_type',
+        'plat_appid',
         'rest',
     ];
+
+    protected function createTime(): Attribute
+    {
+        return Attribute::make(
+            get: fn (string $value) => date('Y-m-d H:i:s',$value),
+        );
+    }
 }

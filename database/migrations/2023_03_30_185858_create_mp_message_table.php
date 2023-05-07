@@ -22,7 +22,11 @@ class CreateMpMessageTable extends Migration
             $table->string('appid')->index();
             $table->string('to')->index();
             $table->string('event')->nullable();
+            $table->string('event_key')->nullable();
+            $table->longText('content')->nullable();
             $table->longText('rest')->nullable();
+            $table->string('plat_appid')->nullable();
+            $table->string('reply_msgid')->nullable();
             $table->integer('sender')->nullable();
         });
     }
