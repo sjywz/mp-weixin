@@ -22,4 +22,5 @@ Route::group([
     $router->resource('/platevent','PlatformEventController');
     $router->resource('/mpmessage','MpMessageController');
     $router->resource('/mpmenu','MpMenuController');
+    $router->resource('/material','MaterialController');
 });

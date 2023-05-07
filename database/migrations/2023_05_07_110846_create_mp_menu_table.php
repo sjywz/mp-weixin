@@ -24,7 +24,7 @@ class CreateMpMenuTable extends Migration
             $table->string('article_id')->nullable();
             $table->integer('parent_id')->index()->default(0);
             $table->string('appid');
-            $table->integer('mid')->index();
+            $table->integer('mid')->index()->default(0);
             $table->tinyInteger('status')->default(0);
             $table->string('group_index')->index();
             $table->timestamps();
