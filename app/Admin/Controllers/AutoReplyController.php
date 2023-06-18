@@ -2,7 +2,12 @@
 
 namespace App\Admin\Controllers;
 
+use App\Admin\Renderable\MpTable;
+use App\Admin\Renderable\ReplyTable;
 use App\Admin\Repositories\AutoReply;
+use App\Models\AutoReply as ModelsAutoReply;
+use App\Models\Mp;
+use App\Models\MpReply;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
@@ -10,6 +15,8 @@ use Dcat\Admin\Http\Controllers\AdminController;
 
 class AutoReplyController extends AdminController
 {
+    private $status = [0=>'禁用',1=>'启用'];
+
     /**
      * Make a grid builder.
      *
@@ -27,10 +34,10 @@ class AutoReplyController extends AdminController
             $grid->column('status');
             $grid->column('created_at');
             $grid->column('updated_at')->sortable();
-        
+
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->equal('id');
-        
+
             });
         });
     }
@@ -66,13 +73,30 @@ class AutoReplyController extends AdminController
     {
         return Form::make(new AutoReply(), function (Form $form) {
             $form->display('id');
-            $form->text('type');
-            $form->text('key');
-            $form->text('event');
-            $form->text('mp_id');
-            $form->text('wight');
-            $form->text('status');
-        
+            $form->radio('type')->options(ModelsAutoReply::$type)
+                ->when(0, function (Form $form) {
+                    $form->textarea('key');
+                })->when(1, function (Form $form) {
+                    $form->text('event');
+                })
+                ->default(0)
+                ->required();
+
+            $form->divider();
+            $form->multipleSelectTable('mp_id', '应用公众号')
+                ->title('公众号')
+                ->from(MpTable::make())
+                ->model(Mp::class, 'id', 'name');
+            $form->multipleSelectTable('reply_id', '回复内容')
+                ->title('消息')
+                ->from(ReplyTable::make())
+                ->max(5)
+                ->model(MpReply::class, 'id', 'title');
+            $form->divider();
+
+            $form->number('wight');
+            $form->radio('status')->options($this->status)->default(1);
+
             $form->display('created_at');
             $form->display('updated_at');
         });

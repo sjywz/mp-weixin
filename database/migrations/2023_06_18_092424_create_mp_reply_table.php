@@ -15,6 +15,7 @@ class CreateMpReplyTable extends Migration
     {
         Schema::create('mp_reply', function (Blueprint $table) {
             $table->increments('id');
+            $table->string('title');
             $table->string('type')->comment('消息类型');
             $table->longText('content')->comment('消息内容');
             $table->tinyInteger('status')->default(1)->comment('状态');
