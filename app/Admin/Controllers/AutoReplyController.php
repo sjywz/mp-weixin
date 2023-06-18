@@ -71,7 +71,11 @@ class AutoReplyController extends AdminController
      */
     protected function form()
     {
-        return Form::make(new AutoReply(), function (Form $form) {
+        $repository = new AutoReply(['mpId','replyId']);
+        return Form::make($repository, function (Form $form) {
+            // $form->mp_id = $form->model()->mpId;
+            // $form->reply_id = $form->model()->replyId;
+
             $form->display('id');
             $form->radio('type')->options(ModelsAutoReply::$type)
                 ->when(0, function (Form $form) {
@@ -86,12 +90,20 @@ class AutoReplyController extends AdminController
             $form->multipleSelectTable('mp_id', '应用公众号')
                 ->title('公众号')
                 ->from(MpTable::make())
-                ->model(Mp::class, 'id', 'name');
+                ->model(Mp::class, 'id', 'name')
+                ->customFormat(function ($v) {
+                    if (!$v) return [];
+                    return array_column($v, 'id');
+                });
             $form->multipleSelectTable('reply_id', '回复内容')
                 ->title('消息')
                 ->from(ReplyTable::make())
                 ->max(5)
-                ->model(MpReply::class, 'id', 'title');
+                ->model(MpReply::class, 'id', 'title')
+                ->customFormat(function ($v) {
+                    if (!$v) return [];
+                    return array_column($v, 'id');
+                });
             $form->divider();
 
             $form->number('wight');

@@ -5,6 +5,7 @@ namespace App\Models;
 use Dcat\Admin\Traits\HasDateTimeFormatter;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Mp extends Model
 {
@@ -59,4 +60,11 @@ class Mp extends Model
         18 => '已告警',
         19 => '已冻结'
     ];
+
+    public function replys(): BelongsToMany
+    {
+        $useTable = 'rule_use';
+        $relatedModel = AutoReply::class;
+        return $this->belongsToMany($relatedModel, $useTable, 'mp_id', 'rule_id');
+    }
 }

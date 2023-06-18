@@ -1,8 +1,8 @@
-<?php 
+<?php
 return [
     'labels' => [
-        'AutoReply' => '自动回复',
-        'auto-reply' => '自动回复',
+        'AutoReply' => '回复规则',
+        'auto-reply' => '回复规则',
     ],
     'fields' => [
         'type' => '类型',
