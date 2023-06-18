@@ -11,8 +11,13 @@ class ReplyService
         $to = $message->ToUserName;
         $msgId = $message->MsgId;
 
+        $msgType = $message->MsgType;
+        $createTime = $message->CreateTime;
+        $event = $message->Event;
+        $eventKey = $message->EventKey;
+
         $type = 'text';
-        $content = '你好:'.$appid.'===>'.$platAappid;
+        $content = '你好:'.$appid.'===>'.$platAappid.'==>msgtype:'.$msgType.'==>event:'.$event.'==>eventkey:'.$eventKey;
         $time = time();
 
         $reply = [

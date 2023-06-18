@@ -7,15 +7,13 @@ use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
 use Dcat\Admin\Http\Controllers\AdminController;
-use App\Services\PlatformService;
+use App\Services\WeixinService;
 use Illuminate\Support\Facades\Config;
 use App\Models\Mp;
 use Dcat\Admin\Layout\Column;
 use Dcat\Admin\Layout\Content;
 use Dcat\Admin\Layout\Row;
 use Dcat\Admin\Widgets\Alert;
-use Dcat\Admin\Widgets\Callout;
-use Dcat\Admin\Widgets\Box;
 use Dcat\Admin\Widgets\Card;
 
 class PlatformController extends AdminController
@@ -99,7 +97,7 @@ class PlatformController extends AdminController
     public function auth($id)
     {
         try{
-            $plat = new PlatformService();
+            $plat = new WeixinService();
             $app = $plat->getApp($id);
             $server = $app->getServer();
 
@@ -115,11 +113,11 @@ class PlatformController extends AdminController
     public function call(Content $content, $id)
     {
         try{
-            $plat = new PlatformService();
+            $plat = new WeixinService();
             $app = $plat->getApp($id);
             $account = $app->getAccount();
             $pAppid = $account->getAppId();
-    
+
             $server = $app->getServer();
 
             $auth_code = request()->get('auth_code');
@@ -128,21 +126,21 @@ class PlatformController extends AdminController
                 $aAppid = $authorization->getAppId();
                 $accessToken = $authorization->getAccessToken();
                 $refreshToken = $authorization->getRefreshToken();
-        
+
                 $authorizationInfo = $authorization->authorization_info;
                 $expires_in = $authorizationInfo['expires_in'];
                 $func_info  = $authorizationInfo['func_info'];
-        
+
                 $mpinfo = Mp::where('appid',$aAppid)
                     ->where('plat_appid',$pAppid)
                     ->first();
-        
+
                 if($mpinfo){
                     $data = [
                         'refresh_token' => $refreshToken,
                         'func_info' => json_encode($func_info)
                     ];
-                    Mp::where('id',$mpinfo->id)->update($data); 
+                    Mp::where('id',$mpinfo->id)->update($data);
                 }else{
                     $data = [
                         'name' => $aAppid,
@@ -161,7 +159,7 @@ class PlatformController extends AdminController
             $error = $e->getMessage();
             $alert = Alert::make($error, '授权失败')->warning();
         }
-        
+
         return $content->header('授权')
             ->description('授权结果')
             ->body(function (Row $row) use ($alert) {
