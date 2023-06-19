@@ -17,7 +17,7 @@ class CreateResourceTable extends Migration
             $table->increments('id');
             $table->string('name');
             $table->string('path');
-            $table->string('desc');
+            $table->string('desc')->nullable();
             $table->tinyInteger('type')->default(1);
             $table->timestamps();
         });

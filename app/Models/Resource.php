@@ -10,5 +10,11 @@ class Resource extends Model
 {
 	use HasDateTimeFormatter;
     protected $table = 'resource';
-    
+
+    public static $type = [
+        1 => '图片',
+        2 => '视频',
+        3 => '语音',
+        4 => '文件',
+    ];
 }
