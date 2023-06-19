@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class AutoReply extends Model
 {
 	use HasDateTimeFormatter;
-    protected $table = 'auto_reply_rule';
+    protected $table = 'auto_rule';
 
     public static $type = [
         0 => '关键词',
@@ -21,13 +21,13 @@ class AutoReply extends Model
     {
         $useTable = 'rule_use';
         $relatedModel = Mp::class;
-        return $this->belongsToMany($relatedModel, $useTable, 'rule_id', 'mp_id');
+        return $this->belongsToMany($relatedModel, $useTable, 'rule_id', 'mp_id')->withTimestamps();
     }
 
     public function replyId(): BelongsToMany
     {
         $useTable = 'rule_reply';
         $relatedModel = MpReply::class;
-        return $this->belongsToMany($relatedModel, $useTable, 'rule_id', 'reply_id');
+        return $this->belongsToMany($relatedModel, $useTable, 'rule_id', 'reply_id')->withTimestamps();
     }
 }

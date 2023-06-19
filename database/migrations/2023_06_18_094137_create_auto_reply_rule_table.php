@@ -13,7 +13,7 @@ class CreateAutoReplyRuleTable extends Migration
      */
     public function up()
     {
-        Schema::create('auto_reply_rule', function (Blueprint $table) {
+        Schema::create('auto_rule', function (Blueprint $table) {
             $table->increments('id');
             $table->tinyInteger('type')->default(0)->comment('类型');
             $table->string('key')->nullable()->comment('关键词');
@@ -31,6 +31,6 @@ class CreateAutoReplyRuleTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('auto_reply');
+        Schema::dropIfExists('auto_rule');
     }
 }

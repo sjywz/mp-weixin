@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateRuleReplyTable extends Migration
+class CreateResourceTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,12 @@ class CreateRuleReplyTable extends Migration
      */
     public function up()
     {
-        Schema::create('rule_reply', function (Blueprint $table) {
+        Schema::create('resource', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('rule_id');
-            $table->string('reply_id');
+            $table->string('name');
+            $table->string('path');
+            $table->string('desc');
+            $table->tinyInteger('type')->default(1);
             $table->timestamps();
         });
     }
@@ -28,6 +30,6 @@ class CreateRuleReplyTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('rule_reply');
+        Schema::dropIfExists('resource');
     }
 }
