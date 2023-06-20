@@ -5,29 +5,24 @@ namespace App\Models;
 use Dcat\Admin\Traits\HasDateTimeFormatter;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class AutoReply extends Model
 {
 	use HasDateTimeFormatter;
-    protected $table = 'auto_rule';
+    protected $table = 'auto_reply';
+
+    protected $casts = [
+        'context' => 'array',
+    ];
 
     public static $type = [
         0 => '关键词',
-        1 => '事件',
+        1 => '用户关注',
+        2 => '事件',
     ];
 
-    public function mpId(): BelongsToMany
-    {
-        $useTable = 'rule_use';
-        $relatedModel = Mp::class;
-        return $this->belongsToMany($relatedModel, $useTable, 'rule_id', 'mp_id')->withTimestamps();
-    }
-
-    public function replyId(): BelongsToMany
-    {
-        $useTable = 'rule_reply';
-        $relatedModel = MpReply::class;
-        return $this->belongsToMany($relatedModel, $useTable, 'rule_id', 'reply_id')->withTimestamps();
-    }
+    public static $replyType = [
+        'text' => '文本',
+        'image' => '图片',
+    ];
 }

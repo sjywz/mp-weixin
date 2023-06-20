@@ -24,6 +24,5 @@ Route::group([
     $router->resource('/mpmenu','MpMenuController');
     $router->resource('/material','MaterialController');
     $router->resource('/mp_auto','AutoReplyController');
-    $router->resource('/mp_reply','MpReplyController');
     $router->resource('/resource','ResourceController');
 });

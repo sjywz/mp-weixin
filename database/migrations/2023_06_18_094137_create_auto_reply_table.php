@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateAutoReplyRuleTable extends Migration
+class CreateAutoReplyTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,14 @@ class CreateAutoReplyRuleTable extends Migration
      */
     public function up()
     {
-        Schema::create('auto_rule', function (Blueprint $table) {
+        Schema::create('auto_reply', function (Blueprint $table) {
             $table->increments('id');
+            $table->string('appid')->nullable()->comment('AppId');
             $table->tinyInteger('type')->default(0)->comment('类型');
             $table->string('key')->nullable()->comment('关键词');
             $table->string('event')->nullable()->comment('事件');
+            $table->string('reply_type')->comment('回复类型');
+            $table->longText('context')->nullable()->comment('回复内容');
             $table->tinyInteger('wight')->default(1)->comment('权重');
             $table->tinyInteger('status')->default(1)->comment('状态');
             $table->timestamps();
@@ -31,6 +34,6 @@ class CreateAutoReplyRuleTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('auto_rule');
+        Schema::dropIfExists('auto_reply');
     }
 }
