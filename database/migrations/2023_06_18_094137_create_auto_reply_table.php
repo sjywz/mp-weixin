@@ -19,7 +19,6 @@ class CreateAutoReplyTable extends Migration
             $table->tinyInteger('type')->default(0)->comment('类型');
             $table->string('key')->nullable()->comment('关键词');
             $table->string('event')->nullable()->comment('事件');
-            $table->string('reply_type')->comment('回复类型');
             $table->longText('context')->nullable()->comment('回复内容');
             $table->tinyInteger('wight')->default(1)->comment('权重');
             $table->tinyInteger('status')->default(1)->comment('状态');

@@ -106,12 +106,15 @@ class AutoReplyController extends AdminController
                     });
             });
             $form->divider('注：可以添加多条回复内容，超过5条最多回复5条');
-            $form->hidden('reply_type')->default('_text');
             $form->number('wight');
             $form->radio('status')->options($this->status)->default(1);
 
             $form->display('created_at');
             $form->display('updated_at');
+        })->saving(function(Form $form){
+            if($form->type == 1){
+                $form->event = 'subscribe';
+            }
         });
     }
 }

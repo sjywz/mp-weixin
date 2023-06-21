@@ -75,6 +75,7 @@ class ResourceController extends AdminController
             $form->radio('type')->options(ModelsResource::$type)->default(1);
             $form->text('name')->required();
             $form->image('path')->autoUpload()->required();
+            $form->number('wight','权重');
             $form->textarea('desc');
 
             $form->display('created_at');

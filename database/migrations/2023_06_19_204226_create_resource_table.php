@@ -18,6 +18,8 @@ class CreateResourceTable extends Migration
             $table->string('name');
             $table->string('path');
             $table->string('desc')->nullable();
+            $table->string('media_id')->nullable();
+            $table->integer('wight')->default(0);
             $table->tinyInteger('type')->default(1);
             $table->timestamps();
         });
