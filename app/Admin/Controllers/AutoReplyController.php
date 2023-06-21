@@ -90,19 +90,23 @@ class AutoReplyController extends AdminController
                 })
                 ->default(0)
                 ->required();
-            $form->radio('reply_type', '回复类型')
-                ->options(ModelsAutoReply::$replyType)
-                ->default('text')
-                ->when('text', function (Form $form) {
-                    $form->textarea('context.text');
-                })
-                ->when('image', function (Form $form) {
-                    $form->multipleSelectTable('context.image', '图片')
-                        ->title('图片列表')
-                        ->from(ResourceTable::make())
-                        ->model(Resource::class, 'id', 'name');
-                });
-
+            $form->array('context', '回复内容', function ($table) {
+                $table->radio('reply_type', '类型')
+                    ->options(ModelsAutoReply::$replyType)
+                    ->default('text')
+                    ->when('text', function ($table) {
+                        $table->textarea('text', '文字');
+                        $table->html('<p>文字中支持变量替换，可用变量有：用户的openid/公众号名称/date/datetime/week/</p>');
+                    })
+                    ->when('image', function ($table) {
+                        $table->multipleSelectTable('image', '图片')
+                            ->title('图片列表')
+                            ->from(ResourceTable::make())
+                            ->model(Resource::class, 'id', 'name');
+                    });
+            });
+            $form->divider('注：可以添加多条回复内容，超过5条最多回复5条');
+            $form->hidden('reply_type')->default('_text');
             $form->number('wight');
             $form->radio('status')->options($this->status)->default(1);
 
