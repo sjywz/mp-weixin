@@ -4,6 +4,7 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\DB;
 
 class Kernel extends ConsoleKernel
 {
@@ -15,7 +16,14 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        $schedule->call(function () {
+            $lastweek = strtotime('-7 day');
+            DB::table('platform_event')->where('create_time','<',$lastweek)->delete();
+        })->dailyAt('3:00');
+        $schedule->call(function () {
+            $lastMonth = strtotime('-30 day');
+            DB::table('mp_message')->where('create_time','<',$lastMonth)->delete();
+        })->dailyAt('3:00');
     }
 
     /**
