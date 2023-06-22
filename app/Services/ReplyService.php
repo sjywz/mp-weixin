@@ -1,6 +1,7 @@
 <?php
 namespace App\Services;
 
+use App\Jobs\WxReply;
 use App\Models\MpMessage;
 use Illuminate\Support\Facades\DB;
 
@@ -40,26 +41,38 @@ class ReplyService
         if($replyRule){
             $replyContext = json_decode($replyRule->context,true);
             $replyList = AutoRule::buildContext($replyContext);
+            if($replyList){
+                $firstReply = [];
+                foreach($replyList as $v){
+                    if(empty($firstReply) && $v['MsgType'] === 'text'){
+                        $firstReply = $v;
+                    }else{
+                        WxReply::dispatch(array_merge($v,[
+                            'appid' => $appid,
+                            'openid' => $openid,
+                            'reply_msgid' => $msgId,
+                            'plat_aappid' => $platAappid,
+                        ]));
+                    }
+                }
+
+                if($firstReply){
+                    MpMessage::create([
+                        'to' => $openid,
+                        'from' => $to,
+                        'type' => $firstReply['MsgType'],
+                        'msgid' => uniqid(),
+                        'appid' => $appid,
+                        'content' => $content,
+                        'reply_msgid' => $msgId,
+                        'create_time' => time(),
+                        'plat_appid' => $platAappid,
+                        'rest' => json_encode($firstReply),
+                    ]);
+                    return $firstReply;
+                }
+            }
         }
-
-        $type = 'text';
-        $content = json_encode($replyList);
-        $reply = [
-            'MsgType' => $type,
-            'Content' => $content,
-        ];
-
-        MpMessage::create([
-            'to' => $openid,
-            'from' => $to,
-            'type' => $type,
-            'msgid' => uniqid(),
-            'appid' => $appid,
-            'content' => $content,
-            'reply_msgid' => $msgId,
-            'create_time' => time(),
-            'rest' => json_encode($reply),
-        ]);
-        return $reply;
+        return '';
     }
 }

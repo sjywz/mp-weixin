@@ -11,9 +11,7 @@ class WeixinService
     public function getApp($id,$solo = false)
     {
         if($solo){
-            $plat = Mp::where('id',$id)
-                ->orWhere('appid',$id)
-                ->first();
+            $plat = Mp::where('id',$id)->orWhere('appid',$id)->first();
             if(empty($plat)){
                 throw new \Exception('平台信息不存在');
             }

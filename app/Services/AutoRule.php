@@ -14,28 +14,51 @@ class AutoRule
 
         $reourceList = DB::table('resource')
             ->whereIn('id',$imageIds)
-            ->select('id','name','path','media_id','wight')
+            ->select('id','name','path','wight')
             ->get();
 
-        $replyList = [];
-        foreach($context as $v){
+        $replyList = array_map(function($v) use ($reourceList){
             $type = $v['reply_type'];
-            if($type === 'text'){
-                $replyList[] = [
-                    'MsgType' => $type,
-                    'Content' => $v[$type],
-                ];
-            }else if($type === 'image'){
-                $imageList = $v[$type];
-                $rand = rand(0,count($imageList) - 1);
-                $replyList[] = [
-                    'MsgType' => $type,
-                    'MediaId' => $imageList[$rand],
-                    'resource' => $reourceList,
-                ];
+            $content = $v[$type];
+            if($content){
+                if($type === 'text'){
+                    return [
+                        'MsgType' => $type,
+                        'Content' => $content,
+                    ];
+                }else if($type === 'image'){
+                    $filterList = array_filter($reourceList->all(),function($v) use ($content){
+                        return in_array($v->id,$content);
+                    });
+                    if($filterList){
+                        $selected = self::randImg($filterList);
+                        $mediaId = 'image:'.collect($selected)->get('path');
+                        return [
+                            'MsgType' => $type,
+                            'MediaId' => $mediaId,
+                        ];
+                    }
+                }
+            }
+            return null;
+        },$context);
+        return $replyList;
+    }
+
+    public static function randImg($data)
+    {
+        $total_weight = array_sum(array_column($data, 'wight'));
+        $rand = mt_rand(1, $total_weight);
+        $selected = null;
+
+        foreach ($data as $item) {
+            $rand -= $item->wight ?: 1;
+            if ($rand <= 0) {
+                $selected = $item;
+                break;
             }
         }
 
-        return $replyList;
+        return $selected;
     }
 }

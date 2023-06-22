@@ -1,7 +1,10 @@
 <?php
 
 use App\Http\Controllers\PlatformController;
+use App\Models\Material;
 use App\Services\AutoRule;
+use App\Services\WeixinService;
+use EasyWeChat\Kernel\Form\File;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
@@ -25,15 +28,5 @@ Route::get('/', function () {
 });
 
 Route::get('/test', function(){
-    $replyRule = DB::table('auto_reply')
-            ->where('id',1)
-            ->select(['id','key','key','event','context'])
-            ->orderBy('wight','desc')
-            ->first();
-
-    if($replyRule){
-        $replyContext = json_decode($replyRule->context,true);
-        $replyList = AutoRule::buildContext($replyContext);
-        print_r($replyList);
-    }
+    echo 'this is test';
 });

@@ -18,21 +18,28 @@ class MaterialController extends AdminController
     protected function grid()
     {
         return Grid::make(new Material(), function (Grid $grid) {
+            $grid->model()->orderBy('id', 'desc');
+
             $grid->column('id')->sortable();
-            $grid->column('media_id');
+            $grid->column('media_id')->width('120px');
             $grid->column('name');
-            $grid->column('url');
-            $grid->column('content');
-            $grid->column('is_temp');
+            $grid->column('url')->image('',150);
+            // $grid->column('content');
+            $grid->column('is_temp')->using([
+                0 => '否',
+                1 => '是',
+            ])->badge([
+                0 => 'success',
+                1 => 'danger'
+            ]);
             $grid->column('appid');
             $grid->column('mid');
-            $grid->column('type');
+            $grid->column('type')->label();
             $grid->column('created_at');
-            $grid->column('updated_at')->sortable();
-        
+
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->equal('id');
-        
+
             });
         });
     }
@@ -78,7 +85,7 @@ class MaterialController extends AdminController
             $form->text('appid');
             $form->text('mid');
             $form->text('type');
-        
+
             $form->display('created_at');
             $form->display('updated_at');
         });

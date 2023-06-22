@@ -32,6 +32,7 @@ class MpMessageController extends AdminController
             $grid->column('content')->display(function($content){
                 return "<div style='width:500px;overflow:auto'>$content</div>";
             });
+            $grid->column('rest');
             $grid->column('create_time');
 
             $grid->filter(function (Grid\Filter $filter) {
