@@ -19,28 +19,13 @@ class ReplyService
         $eventKey = $message->EventKey;
         $createTime = $message->CreateTime;
 
-        $where = [
-            ['appid','=',$appid],
-            ['status', '=', 1],
-        ];
-        if($event === 'subscribe'){
-            $where[] = ['event','=','subscribe'];
-        }else if($eventKey){
-            $where[] = ['event','=',$eventKey];
-        }else{
-            $where[] = ['type','=',0];
-            $where[] = ['key','like','%'.trim($content).'%'];
-        }
-        $replyRule = DB::table('auto_reply')
-            ->where($where)
-            ->select(['id','key','key','event','context'])
-            ->orderBy('wight','desc')
-            ->first();
+        $replyRule = self::_getReplyRule($appid, $msgType, $event, $eventKey, $content);
 
         $replyList = [];
-        if($replyRule){
+        if($replyRule && $replyRule->context){
             $replyContext = json_decode($replyRule->context,true);
             $replyList = AutoRule::buildContext($replyContext);
+
             if($replyList){
                 $firstReply = [];
                 foreach($replyList as $v){
@@ -74,5 +59,30 @@ class ReplyService
             }
         }
         return '';
+    }
+
+    private static function _getReplyRule($appid, $msgType, $event, $eventKey, $content)
+    {
+        $where = [
+            ['appid','=',$appid],
+            ['status', '=', 1],
+        ];
+        if($msgType === 'event'){
+            if($event === 'subscribe'){
+                $where[] = ['event','=','subscribe'];
+            }else if($eventKey){
+                $where[] = ['event','=',$eventKey];
+            }
+        }else{
+            $where[] = ['type','=',0];
+            $where[] = ['key','like','%'.trim($content).'%'];
+        }
+
+        $replyRule = DB::table('auto_reply')
+            ->where($where)
+            ->select(['id','key','key','event','context'])
+            ->orderBy('wight','desc')
+            ->first();
+        return $replyRule;
     }
 }

@@ -1,11 +1,7 @@
 <?php
 
+use App\Http\Controllers\Authroize;
 use App\Http\Controllers\PlatformController;
-use App\Models\Material;
-use App\Services\AutoRule;
-use App\Services\WeixinService;
-use EasyWeChat\Kernel\Form\File;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,6 +18,10 @@ use Illuminate\Support\Facades\Route;
 Route::any('/mp/{id}',[PlatformController::class, 'mp']);
 Route::any('/platauth/{id}',[PlatformController::class, 'auth']);
 Route::any('/platmsg/{id}/{appid}',[PlatformController::class, 'msg']);
+
+Route::get('/authroize/{appid}',[Authroize::class, 'index']);
+Route::get('/authroize/call/{appid}',[Authroize::class, 'call']);
+
 
 Route::get('/', function () {
     return 'welcome';
