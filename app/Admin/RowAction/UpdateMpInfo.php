@@ -5,8 +5,8 @@ namespace App\Admin\RowAction;
 use Dcat\Admin\Admin;
 use Dcat\Admin\Grid\RowAction;
 use Illuminate\Http\Request;
-use App\Services\PlatformService;
 use App\Models\Mp;
+use App\Services\WeixinService;
 
 class UpdateMpInfo extends RowAction
 {
@@ -68,7 +68,7 @@ class UpdateMpInfo extends RowAction
             return $this->response()->error('公众号/小程序信息不存在');
         }
 
-        $plat = new PlatformService();
+        $plat = new WeixinService();
         $app = $plat->getApp($mpinfo->plat_appid);
         $api = $app->getClient();
 
