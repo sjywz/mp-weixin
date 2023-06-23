@@ -24,5 +24,6 @@ class AutoReply extends Model
     public static $replyType = [
         'text' => '文本',
         'image' => '图片',
+        'voice' => '语音',
     ];
 }

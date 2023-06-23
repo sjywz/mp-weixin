@@ -72,9 +72,11 @@ class ResourceController extends AdminController
     {
         return Form::make(new Resource(), function (Form $form) {
             $form->display('id');
-            $form->radio('type')->options(ModelsResource::$type)->default(1);
+            $form->radio('type')
+                ->options(ModelsResource::$type)
+                ->default(1);
             $form->text('name')->required();
-            $form->image('path')->autoUpload()->required();
+            $form->file('path','文件')->autoUpload()->required();
             $form->number('wight','权重');
             $form->textarea('desc');
 

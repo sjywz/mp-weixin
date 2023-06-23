@@ -2,7 +2,6 @@
 
 namespace App\Admin\Renderable;
 
-use App\Models\Mp;
 use App\Models\Resource;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Grid\LazyRenderable;
@@ -11,9 +10,11 @@ class ResourceTable extends LazyRenderable
 {
     public function grid(): Grid
     {
-        return Grid::make(new Resource(), function (Grid $grid) {
+        $type = $this->type;
+
+        return Grid::make(Resource::where('type',$type), function (Grid $grid) {
             $grid->column('id')->sortable();
-            $grid->column('name', '名称');
+            $grid->column('name', '名称'.$this->type);
             $grid->column('path', '图片')->image('',60);
 
             $grid->quickSearch(['id', 'name']);

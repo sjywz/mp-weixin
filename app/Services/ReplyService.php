@@ -54,15 +54,14 @@ class ReplyService
                 if($firstReply){
                     MpMessage::create([
                         'to' => $openid,
-                        'from' => $to,
+                        'from' => $appid,
                         'type' => $firstReply['MsgType'],
                         'msgid' => uniqid(),
                         'appid' => $appid,
-                        'content' => $content,
+                        'content' => json_encode($firstReply),
                         'reply_msgid' => $msgId,
                         'create_time' => time(),
                         'plat_appid' => $platAappid,
-                        'rest' => json_encode($firstReply),
                     ]);
                     return $firstReply;
                 }

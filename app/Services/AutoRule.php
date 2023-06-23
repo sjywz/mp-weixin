@@ -8,15 +8,20 @@ class AutoRule
 {
     public static function buildContext($appid, $context)
     {
-        $imageIds = array_unique(array_reduce(array_column($context,'image'),function($p,$c){
-            return array_merge($p,$c);
-        },[]));
+        $resourceIds = array_reduce(array_filter( array_map(function($v){
+            if($v['reply_type'] != 'text'){
+                return $v[$v['reply_type']];
+            }
+            return null;
+        },$context)),function($p, $c){
+            return array_merge($p,explode(',',$c));
+        },[]);
 
         $reourceList = [];
         $materialListByUrl = [];
-        if($imageIds){
+        if($resourceIds){
             $reourceList = DB::table('resource')
-                ->whereIn('id',$imageIds)
+                ->whereIn('id',$resourceIds)
                 ->select('id','name','path','wight')
                 ->get()
                 ->all();
@@ -44,9 +49,9 @@ class AutoRule
                         'MsgType' => $type,
                         'Content' => $content,
                     ];
-                }else if($type === 'image'){
+                }else if($type === 'image' || $type == 'voice'){
                     $filterList = array_filter($reourceList,function($v) use ($content){
-                        return in_array($v->id,$content);
+                        return in_array($v->id,explode(',',$content));
                     });
                     if($filterList){
                         $selected = self::randImg($filterList);
@@ -74,18 +79,21 @@ class AutoRule
 
     public static function randImg($data)
     {
-        $total_weight = array_sum(array_column($data, 'wight'));
-        $rand = mt_rand(1, $total_weight);
-        $selected = null;
+        if(count($data) > 1){
+            $total_weight = array_sum(array_column($data, 'wight'));
+            $rand = mt_rand(1, $total_weight);
+            $selected = null;
 
-        foreach ($data as $item) {
-            $rand -= $item->wight ?: 1;
-            if ($rand <= 0) {
-                $selected = $item;
-                break;
+            foreach ($data as $item) {
+                $rand -= $item->wight ?: 1;
+                if ($rand <= 0) {
+                    $selected = $item;
+                    break;
+                }
             }
-        }
 
-        return $selected;
+            return $selected;
+        }
+        return array_pop($data);
     }
 }

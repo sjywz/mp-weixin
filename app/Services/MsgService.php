@@ -3,7 +3,6 @@ namespace App\Services;
 
 use App\Models\MpMessage;
 use App\Models\PlatformEvent;
-use Illuminate\Support\Facades\Log;
 
 class MsgService
 {
@@ -38,7 +37,7 @@ class MsgService
         }
 
         $data = [
-            'to' => $to,
+            'to' => $appid,
             'type' => $msgType,
             'msgid' => $msgId,
             'appid' => $appid,
@@ -48,7 +47,6 @@ class MsgService
             'content' => $content,
             'create_time' => $createTime,
             'plat_appid' => $platAppid,
-            'rest' => json_encode(collect($message)->toArray()),
         ];
         MpMessage::create($data);
     }
@@ -65,7 +63,6 @@ class MsgService
             'create_time' => $createTime,
             'info_type' => $infoType,
             'plat_appid' => $platAppid,
-            'rest' => json_encode(collect($message)->toArray())
         ]);
     }
 }

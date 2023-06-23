@@ -101,8 +101,16 @@ class AutoReplyController extends AdminController
                     ->when('image', function ($table) {
                         $table->multipleSelectTable('image', '图片')
                             ->title('图片列表')
-                            ->from(ResourceTable::make())
-                            ->model(Resource::class, 'id', 'name');
+                            ->from(ResourceTable::make(['type'=>1]))
+                            ->model(Resource::class, 'id', 'name')
+                            ->help('10M，支持PNG\JPEG\JPG\GIF格式');
+                    })
+                    ->when('voice', function ($table) {
+                        $table->multipleSelectTable('voice', '语音')
+                            ->title('语音列表')
+                            ->from(ResourceTable::make(['type'=>3]))
+                            ->model(Resource::class, 'id', 'name')
+                            ->help('2M，播放长度不超过60s，支持AMR\MP3格式');
                     });
             });
             $form->divider('注：可以添加多条回复内容，超过5条最多回复5条');
@@ -112,6 +120,10 @@ class AutoReplyController extends AdminController
             $form->display('created_at');
             $form->display('updated_at');
         })->saving(function(Form $form){
+            $context = array_map(function($v){
+                return array_filter($v);
+            },$form->input('context'));
+            $form->input('context',$context);
             if($form->type == 1){
                 $form->event = 'subscribe';
             }

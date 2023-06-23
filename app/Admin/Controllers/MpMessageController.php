@@ -22,16 +22,16 @@ class MpMessageController extends AdminController
 
             $grid->column('id')->sortable();
             $grid->column('type')->label();
-            $grid->column('msgid');
-            $grid->column('from');
-            $grid->column('to');
-            $grid->column('event');
-            $grid->column('event_key');
             $grid->column('appid');
-            $grid->column('plat_appid');
-            $grid->column('content')->display(function($content){
-                return "<div style='width:500px;overflow:auto'>$content</div>";
-            });
+            // $grid->column('msgid');
+            // $grid->column('from');
+            // $grid->column('to');
+            $grid->column('event');
+            // $grid->column('event_key');
+            // $grid->column('plat_appid');
+            // $grid->column('content')->display(function($content){
+            //     return "<div style='width:500px;overflow:auto'>$content</div>";
+            // });
             $grid->column('rest');
             $grid->column('create_time');
 
