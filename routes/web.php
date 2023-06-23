@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Authroize;
 use App\Http\Controllers\PlatformController;
+use App\Models\Mp;
+use App\Services\WeixinService;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -28,5 +30,5 @@ Route::get('/', function () {
 });
 
 Route::get('/test', function(){
-    echo 'this is test';
+    echo 'test';
 });

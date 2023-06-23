@@ -26,7 +26,7 @@ class MpController extends AdminController
             $grid->column('id')->sortable();
             $grid->column('name');
             $grid->column('icon')->image(50,50);
-            $grid->column('plat_appid');
+            // $grid->column('plat_appid');
             $grid->column('appid');
             $grid->column('type')->using(ModelsMp::$type)->badge([
                 0 => 'primary',
@@ -42,26 +42,33 @@ class MpController extends AdminController
                 18 => 'warning',
                 19 => 'danger'
             ]);
-            $grid->column('desc');
+            // $grid->column('desc');
+            $grid->column('created_at');
+            $grid->column('updated_at')->sortable();
             $grid->column('test','更多')->display('查看')->expand(function(){
                 $content = [
-                    '<div>'.$this->app_secret.'</div>',
-                    '<div>'.$this->verify_token.'</div>',
-                    '<div>'.$this->msg_key.'</div>'
+                    '<div><b>平台APPID</b>:'.$this->plat_appid.'</div>',
+                    '<div><b>Secret</b>:'.$this->app_secret.'</div>',
+                    '<div><b>Verify_Token</b>:'.$this->verify_token.'</div>',
+                    '<div><b>Msg_key</b>:'.$this->msg_key.'</div>',
+                    '<div><b>描述</b>:'.$this->desc.'</div>',
                 ];
                 $card = new Card(null, join('',$content));
                 return "<div style='padding:10px 10px 0'>$card</div>";
             });
-            $grid->column('created_at');
-            $grid->column('updated_at')->sortable();
 
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->equal('id');
             });
-
             $grid->actions(function (Grid\Displayers\Actions $actions) {
-                $actions->append(new UpdateMpInfo(ModelsMp::class));
+                $actions->disableView();
+                if($this->plat_appid){
+                    $actions->disableDelete();
+                    $actions->disableEdit();
+                    $actions->append(new UpdateMpInfo(ModelsMp::class));
+                }
             });
+            $grid->disableBatchActions();
         });
     }
 

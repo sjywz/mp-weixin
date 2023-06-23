@@ -28,17 +28,20 @@ class ReplyService
 
             if($replyList){
                 $firstReply = [];
-                foreach($replyList as $v){
-                    if(empty($firstReply) && $v['MsgType'] === 'text'){
+                foreach($replyList as $k => $v){
+                    if($k === 0 && $v['MsgType'] === 'text'){
                         $firstReply = $v;
-                    }else{
-                        WxReply::dispatch(array_merge($v,[
-                            'appid' => $appid,
-                            'openid' => $openid,
-                            'reply_msgid' => $msgId,
-                            'plat_aappid' => $platAappid,
-                        ]));
+                        unset($replyList[$k]);
                     }
+                }
+
+                if($replyList){
+                    WxReply::dispatch($replyList,[
+                        'appid' => $appid,
+                        'openid' => $openid,
+                        'reply_msgid' => $msgId,
+                        'plat_aappid' => $platAappid,
+                    ]);
                 }
 
                 if($firstReply){

@@ -30,14 +30,22 @@ class PlatformController extends AdminController
 
             $grid->column('id')->sortable();
             $grid->column('name');
-            $grid->column('icon');
+            $grid->column('icon')->image('',100);
             $grid->column('appid');
             $grid->column('app_secret');
-            $grid->column('verify_token');
-            $grid->column('msg_key');
-            $grid->column('desc');
+            // $grid->column('verify_token');
+            // $grid->column('msg_key');
+            // $grid->column('desc');
             $grid->column('created_at');
             $grid->column('updated_at')->sortable();
+            $grid->column('content', '详情')
+                ->display('查看') // 设置按钮名称
+                ->expand(function () {
+                    $card = new Card('详情', $this->verify_token);
+                    // $card[] = new Card(null, $this->msg_key);
+                    // $card[] = new Card(null, $this->desc);
+                    return "<div style='padding:10px 10px 0'>$card</div>";
+                });
 
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->equal('id');
