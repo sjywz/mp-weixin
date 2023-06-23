@@ -9,6 +9,7 @@ use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
 use Dcat\Admin\Http\Controllers\AdminController;
+use Illuminate\Support\Facades\Storage;
 
 class ResourceController extends AdminController
 {
@@ -24,11 +25,26 @@ class ResourceController extends AdminController
                 $grid->view('admin.grid.custom-img');
                 // $grid->setActionClass(Grid\Displayers\Actions::class);
             }
+
             $grid->column('id')->sortable();
             $grid->column('name');
+
             $grid->column('path')->image();
+            $grid->column('path')->display(function ($path) {
+                $url = Storage::disk(config('admin.upload.disk'))->url($path);
+                if($this->type == 1){
+                    return "<img data-action='preview-img' src='$url' class='img img-thumbnail'/>";
+                }
+                return "<audio src='$url' controls></audio>";
+            });
+
             $grid->column('desc');
-            $grid->column('type')->using(ModelsResource::$type);
+            $grid->column('type')->using(ModelsResource::$type)->label([
+                1 => 'primary',
+                2 => 'success',
+                3 => 'info',
+                4 => 'warning'
+            ]);
             $grid->column('created_at');
             $grid->column('updated_at')->sortable();
 
