@@ -84,16 +84,19 @@ class WxReply implements ShouldQueue
         if($type == 'text'){
             $data[$type] = ['content'=>$reply['Content']];
         }else{
-            if(strpos($reply['MediaId'],'image:') === 0){
-                $image = $reply['MediaId'];
+            if(isset($reply['MediaId'])){
+                $data[$type] = ['media_id'=>$reply['MediaId']];
+            }else{
                 try{
+                    $image = $reply['path'];
                     $resource2Media = new Resource2Media();
                     $media = $resource2Media->setClient($client)
+                        ->setType($type)
                         ->upload($image, true);
                     if($media){
                         $data[$type] = ['media_id'=>$media];
                         DB::table('material')->insertOrIgnore([
-                            'url' => str_replace('image:','',$image),
+                            'url' => $image,
                             'type' => $type,
                             'appid' => $appid,
                             'media_id' => $media,

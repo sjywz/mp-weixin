@@ -3,7 +3,9 @@
 use App\Http\Controllers\Authroize;
 use App\Http\Controllers\PlatformController;
 use App\Models\Mp;
+use App\Services\AutoRule;
 use App\Services\WeixinService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -30,5 +32,14 @@ Route::get('/', function () {
 });
 
 Route::get('/test', function(){
-    echo 'test';
+    $replyRule = DB::table('auto_reply')
+            ->where('id',6)
+            ->select(['id','key','key','event','context'])
+            ->orderBy('wight','desc')
+            ->first();
+    $appid = 'wx06ad358fa197ff4c';
+    if($replyRule && $replyRule->context){
+        $replyContext = json_decode($replyRule->context,true);
+        $replyList = AutoRule::buildContext($appid, $replyContext);
+    }
 });

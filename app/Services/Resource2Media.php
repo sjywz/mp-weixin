@@ -15,10 +15,15 @@ class Resource2Media
         return $this;
     }
 
-    public function upload($file, $temp = false)
+    public function setType($type)
     {
-        if($file){
-            list($type, $path) = explode(':',$file);
+        $this->type = $type;
+        return $this;
+    }
+
+    public function upload($path, $temp = false)
+    {
+        if($path){
             $file = storage_path('app/public/'.$path);
             if(file_exists($file)){
                 $api = '/cgi-bin/material/add_material';
@@ -27,7 +32,7 @@ class Resource2Media
                 }
                 try{
                     $media = $this->client->withFile($file, 'media')
-                        ->post($api.'?type='.$type);
+                        ->post($api.'?type='.$this->type);
                     $result = json_decode($media->getContent(),true);
                     if(isset($result['media_id'])){
                         return $result['media_id'];

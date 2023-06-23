@@ -24,14 +24,21 @@ class ReplyService
         $replyList = [];
         if($replyRule && $replyRule->context){
             $replyContext = json_decode($replyRule->context,true);
-            $replyList = AutoRule::buildContext($replyContext);
+            $replyList = AutoRule::buildContext($appid, $replyContext);
 
             if($replyList){
                 $firstReply = [];
                 foreach($replyList as $k => $v){
-                    if($k === 0 && $v['MsgType'] === 'text'){
-                        $firstReply = $v;
-                        unset($replyList[$k]);
+                    if($k === 0){
+                        if($v['MsgType'] === 'text'){
+                            $firstReply = $v;
+                            unset($replyList[$k]);
+                        }else if(isset($v['MediaId'])){
+                            $v[ucfirst($v['MsgType'])]['MediaId'] = $v['MediaId'];
+                            unset($v['MediaId']);
+                            $firstReply = $v;
+                            unset($replyList[$k]);
+                        }
                     }
                 }
 

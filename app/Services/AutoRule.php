@@ -6,18 +6,36 @@ use Illuminate\Support\Facades\DB;
 
 class AutoRule
 {
-    public static function buildContext($context)
+    public static function buildContext($appid, $context)
     {
         $imageIds = array_unique(array_reduce(array_column($context,'image'),function($p,$c){
             return array_merge($p,$c);
         },[]));
 
-        $reourceList = DB::table('resource')
-            ->whereIn('id',$imageIds)
-            ->select('id','name','path','wight')
-            ->get();
+        $reourceList = [];
+        $materialListByUrl = [];
+        if($imageIds){
+            $reourceList = DB::table('resource')
+                ->whereIn('id',$imageIds)
+                ->select('id','name','path','wight')
+                ->get()
+                ->all();
 
-        $replyList = array_map(function($v) use ($reourceList){
+            if($reourceList){
+                $pathArr = array_column($reourceList,'path');
+                $materialList = DB::table('material')
+                    ->where('appid',$appid)
+                    ->whereIn('url',$pathArr)
+                    ->select(['id','media_id','url'])
+                    ->get();
+
+                if($materialList){
+                    $materialListByUrl = $materialList->pluck('media_id','url')->all();
+                }
+            }
+        }
+
+        $replyList = array_map(function($v) use ($reourceList, $materialListByUrl){
             $type = $v['reply_type'];
             $content = $v[$type];
             if($content){
@@ -27,21 +45,30 @@ class AutoRule
                         'Content' => $content,
                     ];
                 }else if($type === 'image'){
-                    $filterList = array_filter($reourceList->all(),function($v) use ($content){
+                    $filterList = array_filter($reourceList,function($v) use ($content){
                         return in_array($v->id,$content);
                     });
                     if($filterList){
                         $selected = self::randImg($filterList);
-                        $mediaId = 'image:'.collect($selected)->get('path');
-                        return [
-                            'MsgType' => $type,
-                            'MediaId' => $mediaId,
-                        ];
+                        $path = collect($selected)->get('path');
+                        if(isset($materialListByUrl[$path]) && $materialListByUrl[$path]){
+                            $mediaId = $materialListByUrl[$path];
+                            return [
+                                'MsgType' => $type,
+                                'MediaId' => $mediaId,
+                            ];
+                        }else{
+                            return [
+                                'MsgType' => $type,
+                                'path' => $path,
+                            ];
+                        }
                     }
                 }
             }
             return null;
         },$context);
+
         return $replyList;
     }
 
