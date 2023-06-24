@@ -1,6 +1,7 @@
 <?php
 namespace App\Services;
 
+use App\Jobs\MpUserSave;
 use App\Models\MpMessage;
 use App\Models\PlatformEvent;
 
@@ -15,6 +16,13 @@ class MsgService
         $to = $message->ToUserName;
         $event = $message->Event;
         $eventKey = $message->EventKey;
+
+        MpUserSave::dispatch([
+            'event' => $event,
+            'appid' => $appid,
+            'openid' => $openid,
+            'plat_appid' => $platAppid,
+        ]);
 
         if($msgType === 'text'){
             $content = $message->Content;

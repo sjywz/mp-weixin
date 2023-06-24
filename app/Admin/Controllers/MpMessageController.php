@@ -59,6 +59,12 @@ class MpMessageController extends AdminController
                 $filter->equal('appid');
                 $filter->equal('plat_appid');
             });
+
+            $grid->actions(function (Grid\Displayers\Actions $actions) {
+                $actions->disableView();
+                $actions->disableEdit();
+            });
+            $grid->disableCreateButton();
         });
     }
 

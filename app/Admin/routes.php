@@ -25,4 +25,5 @@ Route::group([
     $router->resource('/material','MaterialController');
     $router->resource('/mp_auto','AutoReplyController');
     $router->resource('/resource','ResourceController');
+    $router->resource('/mp_user','MpUserController');
 });

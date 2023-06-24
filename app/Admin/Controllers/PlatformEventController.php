@@ -30,6 +30,12 @@ class PlatformEventController extends AdminController
                 $filter->equal('id');
                 $filter->equal('info_type');
             });
+
+            $grid->actions(function (Grid\Displayers\Actions $actions) {
+                $actions->disableView();
+                $actions->disableEdit();
+            });
+            $grid->disableCreateButton();
         });
     }
 
