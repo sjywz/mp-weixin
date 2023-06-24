@@ -104,6 +104,10 @@ class AutoReplyController extends AdminController
                             ->from(ResourceTable::make(['type'=>1]))
                             ->model(Resource::class, 'id', 'name')
                             ->help('10M，支持PNG\JPEG\JPG\GIF格式');
+                        $table->radio('bind','绑定图片')
+                            ->options([1=>'固定',0=>'随机'])
+                            ->default(1)
+                            ->help('固定表示如果用户触发过，后续触发时将使用相同的图片回复；随机则每次按图片权重随机回复');
                     })
                     ->when('voice', function ($table) {
                         $table->multipleSelectTable('voice', '语音')

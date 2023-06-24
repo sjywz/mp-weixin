@@ -3,7 +3,7 @@
 use App\Http\Controllers\Authroize;
 use App\Http\Controllers\PlatformController;
 use App\Services\AutoRule;
-use Illuminate\Support\Facades\DB;
+use App\Services\ReplyService;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -30,15 +30,18 @@ Route::get('/', function () {
 });
 
 Route::get('/test', function(){
-    $replyRule = DB::table('auto_reply')
-            ->where('id',8)
-            ->select(['id','key','key','event','context'])
-            ->orderBy('wight','desc')
-            ->first();
+    $eventKey = 'test';
     $appid = 'wx088ac82f8a915d8c';
+    $openid = 'oJrL8s4WhBlI_bxZ-XH7BdHPslks';
+    $megType = '';
+    $event = '';
+    $content = '用户123';
+
+    $replyRule = ReplyService::getReplyRule($appid,$megType,$event,$eventKey,$content);
+
     if($replyRule && $replyRule->context){
         $replyContext = json_decode($replyRule->context,true);
-        $replyList = AutoRule::buildContext($appid, $replyContext);
+        $replyList = AutoRule::buildContext($appid, $openid, $replyRule->id, $replyContext);
         print_r($replyList);die;
     }
 });

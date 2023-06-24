@@ -17,14 +17,19 @@ class ReplyService
         $content = $message->Content;
         $event = $message->Event;
         $eventKey = $message->EventKey;
-        $createTime = $message->CreateTime;
 
-        $replyRule = self::_getReplyRule($appid, $msgType, $event, $eventKey, $content);
+        $replyRule = self::_getReplyRule(
+            $appid,
+            $msgType,
+            $event,
+            $eventKey,
+            $content
+        );
 
         $replyList = [];
         if($replyRule && $replyRule->context){
             $replyContext = json_decode($replyRule->context,true);
-            $replyList = AutoRule::buildContext($appid, $replyContext);
+            $replyList = AutoRule::buildContext($appid, $openid, $replyRule->id, $replyContext);
 
             if($replyList){
                 $firstReply = [];
@@ -70,28 +75,81 @@ class ReplyService
         return '';
     }
 
+    public static function getReplyRule($appid, $msgType, $event, $eventKey, $content)
+    {
+        return self::_getReplyRule(
+            $appid,
+            $msgType,
+            $event,
+            $eventKey,
+            $content
+        );
+    }
+
     private static function _getReplyRule($appid, $msgType, $event, $eventKey, $content)
     {
         $where = [
             ['appid','=',$appid],
             ['status', '=', 1],
         ];
-        if($msgType === 'event'){
-            if($event === 'subscribe'){
-                $where[] = ['event','=','subscribe'];
-            }else if($eventKey){
-                $where[] = ['event','=',$eventKey];
+
+        if($msgType == 'event'){
+            if($eventKey){
+                $replyRule = DB::table('auto_reply')
+                    ->where($where)
+                    ->where('event',strtolower(trim($eventKey)))
+                    ->select(['id','key','event','context'])
+                    ->orderBy('wight','desc')
+                    ->first();
+                if($replyRule){
+                    return $replyRule;
+                }
+            }
+            $replyRule = DB::table('auto_reply')
+                ->where($where)
+                ->where('event',strtolower(trim($event)))
+                ->select(['id','key','event','context'])
+                ->orderBy('wight','desc')
+                ->first();
+            if($replyRule){
+                return $replyRule;
             }
         }else{
-            $where[] = ['type','=',0];
-            $where[] = ['key','like','%'.trim($content).'%'];
-        }
+            if(trim($content)){
+                $input = trim($content);
+                $replyRule = DB::table('auto_reply')
+                    ->where($where)
+                    ->where('type',0)
+                    ->select(['id','key','context'])
+                    ->orderBy('wight','desc')
+                    ->get();
 
-        $replyRule = DB::table('auto_reply')
-            ->where($where)
-            ->select(['id','key','key','event','context'])
-            ->orderBy('wight','desc')
-            ->first();
-        return $replyRule;
+                foreach($replyRule as $v){
+                    $keyArr = explode(',',$v->key);
+                    foreach($keyArr as $_v){
+                        if($input === $_v){
+                            return $v;
+                        }
+                        if(self::_keyPreg($_v,$input)){
+                            return $v;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private static function _keyPreg($key,$input)
+    {
+        if($key[0] === '%' && $key[strlen($key) - 1] === '%'){
+            $pattern = '/'.str_replace('%', '.*', preg_quote($key, '/')).'/';
+        }elseif($key[0] === '%'){
+            $pattern = '/^' . preg_quote(substr($key, 1), '/').'/';
+        }elseif($key[strlen($key) - 1] === '%'){
+            $pattern = '/'.preg_quote(substr($key, 0, -1), '/').'$/';
+        }else{
+            return false;
+        }
+        return preg_match($pattern, $input);
     }
 }

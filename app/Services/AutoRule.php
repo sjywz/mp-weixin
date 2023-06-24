@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\DB;
 
 class AutoRule
 {
-    public static function buildContext($appid, $context)
+    public static function buildContext($appid, $openid, $replyRuleId, $context)
     {
         $resourceIds = array_reduce(array_filter( array_map(function($v){
             if($v['reply_type'] != 'text'){
@@ -50,11 +50,18 @@ class AutoRule
                         'Content' => $content,
                     ];
                 }else if($type === 'image' || $type == 'voice'){
-                    $filterList = array_filter($reourceList,function($v) use ($content){
+                    $isBind = $v['bind'] ?? 0;
+                    if($isBind){
+                        //查询上次回复
+                    }
+                    $imageList = array_filter($reourceList,function($v) use ($content){
                         return in_array($v->id,explode(',',$content));
                     });
-                    if($filterList){
-                        $selected = self::randImg($filterList);
+                    if($imageList){
+                        $selected = self::randImg($imageList);
+                        if($isBind){
+                            //保存用户回复
+                        }
                         $path = collect($selected)->get('path');
                         if(isset($materialListByUrl[$path]) && $materialListByUrl[$path]){
                             $mediaId = $materialListByUrl[$path];

@@ -7,6 +7,7 @@ use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
 use Dcat\Admin\Http\Controllers\AdminController;
+use Dcat\Admin\Widgets\Card;
 
 class MpMessageController extends AdminController
 {
@@ -32,8 +33,23 @@ class MpMessageController extends AdminController
             // $grid->column('content')->display(function($content){
             //     return "<div style='width:500px;overflow:auto'>$content</div>";
             // });
-            $grid->column('rest');
+            // $grid->column('rest');
             $grid->column('create_time');
+            $grid->column('content', '更多')
+                ->display('查看') // 设置按钮名称
+                ->expand(function () {
+                    $content = array_filter([
+                        '消息id：'.$this->msgid,
+                        '来自：'.$this->from,
+                        '发送：'.$this->to,
+                        $this->event_key,
+                        $this->plat_appid,
+                        $this->content,
+                        $this->rest,
+                    ]);
+                    $card = new Card('', join('<hr>',$content));
+                    return "<div style='padding:10px 10px 0'>$card</div>";
+                });
 
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->equal('id');
