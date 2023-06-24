@@ -40,7 +40,7 @@ class AutoRule
             }
         }
 
-        $replyList = array_map(function($v) use ($reourceList, $materialListByUrl){
+        $replyList = array_map(function($v) use ($reourceList, $materialListByUrl, $appid, $openid, $replyRuleId){
             $type = $v['reply_type'];
             $content = $v[$type];
             if($content){
@@ -51,17 +51,42 @@ class AutoRule
                     ];
                 }else if($type === 'image' || $type == 'voice'){
                     $isBind = $v['bind'] ?? 0;
-                    if($isBind){
-                        //查询上次回复
-                    }
                     $imageList = array_filter($reourceList,function($v) use ($content){
                         return in_array($v->id,explode(',',$content));
                     });
                     if($imageList){
-                        $selected = self::randImg($imageList);
                         if($isBind){
-                            //保存用户回复
+                            $bindMsg = DB::table('bind_msg')
+                                ->where('appid',$appid)
+                                ->where('openid',$openid)
+                                ->where('reply_id',$replyRuleId)
+                                ->select(['id','source_id'])
+                                ->orderBy('id','desc')
+                                ->first();
+                            if($bindMsg){
+                                $sourceId = $bindMsg->source_id;
+                                $selectedArr = array_filter($imageList,function($v) use ($sourceId){
+                                    return $v->id == $sourceId;
+                                });
+                                if($selectedArr){
+                                    $selected = collect($selectedArr)->first();
+                                }
+                            }
                         }
+
+                        if(empty($selected)){
+                            $selected = self::randImg($imageList);
+                            if($isBind){
+                                //保存用户回复
+                                DB::table('bind_msg')->insert([
+                                    'appid' => $appid,
+                                    'openid' => $openid,
+                                    'reply_id' => $replyRuleId,
+                                    'source_id' => $selected->id,
+                                ]);
+                            }
+                        }
+
                         $path = collect($selected)->get('path');
                         if(isset($materialListByUrl[$path]) && $materialListByUrl[$path]){
                             $mediaId = $materialListByUrl[$path];

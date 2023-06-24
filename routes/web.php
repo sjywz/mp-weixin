@@ -35,7 +35,7 @@ Route::get('/test', function(){
     $openid = 'oJrL8s4WhBlI_bxZ-XH7BdHPslks';
     $megType = '';
     $event = '';
-    $content = '用户123';
+    $content = '下课了';
 
     $replyRule = ReplyService::getReplyRule($appid,$megType,$event,$eventKey,$content);
 
