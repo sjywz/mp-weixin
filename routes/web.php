@@ -2,12 +2,6 @@
 
 use App\Http\Controllers\Authroize;
 use App\Http\Controllers\PlatformController;
-use App\Models\Mp;
-use App\Models\MpUser;
-use App\Services\AutoRule;
-use App\Services\ReplyService;
-use App\Services\WeixinService;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -28,16 +22,8 @@ Route::any('/platmsg/{id}/{appid}',[PlatformController::class, 'msg']);
 Route::get('/authroize/{appid}',[Authroize::class, 'index']);
 Route::get('/authroize/call/{appid}',[Authroize::class, 'call']);
 
-
-Route::get('/', function () {
-    return 'welcome';
-});
+Route::redirect('/', '/admin');
 
 Route::get('/test', function(){
-    $appid = 'wx06ad358fa197ff4c';
-    $platAappid = 'wx5b65af732dbb2dc5';
-    $openid = 'oywFe5zUhFDgYNY9mbWyYWLt-iCk';
-
-    $mpUser = MpUser::firstWhere('openid', $openid);
-
+    echo 'this is test';
 });
