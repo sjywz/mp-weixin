@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers;
 
 use App\Admin\Repositories\MpUser;
+use App\Models\Mp;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
@@ -17,9 +18,11 @@ class MpUserController extends AdminController
      */
     protected function grid()
     {
-        return Grid::make(new MpUser(), function (Grid $grid) {
+        $mplist = Mp::get()->pluck('name','appid');
+
+        return Grid::make(new MpUser(['mp']), function (Grid $grid) use ($mplist) {
             $grid->column('id')->sortable();
-            $grid->column('appid');
+            $grid->column('mp.name','公众号');
             $grid->column('openid');
             $grid->column('unionid');
             $grid->column('subscribe')->using([
@@ -38,9 +41,17 @@ class MpUserController extends AdminController
             // $grid->column('created_at');
             $grid->column('updated_at')->sortable();
 
-            $grid->filter(function (Grid\Filter $filter) {
-                $filter->equal('id');
+            $grid->filter(function (Grid\Filter $filter) use ($mplist){
+                $filter->panel();
+                $filter->expand();
 
+                $filter->equal('appid','公众号')->width(3)->select($mplist);
+                $filter->like('openid')->width(3);
+                $filter->like('unionid')->width(3);
+                $filter->equal('subscribe')->width(3)->radio([
+                    0 => '取关',
+                    1 => '关注',
+                ]);
             });
 
             $grid->actions(function (Grid\Displayers\Actions $actions) {

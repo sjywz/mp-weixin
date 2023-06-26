@@ -49,13 +49,21 @@ class ResourceController extends AdminController
             $grid->column('updated_at')->sortable();
 
             $grid->filter(function (Grid\Filter $filter) {
-                $filter->equal('id');
-
+                $filter->panel();
+                $filter->expand();
+                $filter->like('name')->width(3);
+                $filter->equal('type')->select(ModelsResource::$type)->width(3);
             });
 
             $grid->tools([
                 new SwitchGridView(),
             ]);
+
+            $grid->actions(function (Grid\Displayers\Actions $actions) {
+                $actions->disableView();
+            });
+
+            $grid->disableBatchDelete();
         });
     }
 
@@ -98,6 +106,9 @@ class ResourceController extends AdminController
 
             $form->display('created_at');
             $form->display('updated_at');
+
+            $form->disableViewButton();
+            $form->disableViewCheck();
         });
     }
 }

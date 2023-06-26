@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers;
 
 use App\Admin\Repositories\PlatformEvent;
+use App\Models\Platform;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
@@ -17,18 +18,22 @@ class PlatformEventController extends AdminController
      */
     protected function grid()
     {
-        return Grid::make(new PlatformEvent(), function (Grid $grid) {
+        return Grid::make(new PlatformEvent(['plat']), function (Grid $grid) {
             $grid->model()->orderBy('id', 'desc');
 
             $grid->column('id')->sortable();
-            $grid->column('appid');
+            $grid->column('plat.name', '平台');
             $grid->column('info_type')->label();
-            $grid->column('plat_appid');
+            $grid->column('plat_appid', '平台AppID');
             $grid->column('create_time');
 
             $grid->filter(function (Grid\Filter $filter) {
-                $filter->equal('id');
-                $filter->equal('info_type');
+                $filter->panel();
+                $filter->expand();
+
+                $platlist = Platform::get()->pluck('name','appid');
+                $filter->equal('appid','平台')->width(3)->select($platlist);
+                $filter->equal('info_type')->width(3);
             });
 
             $grid->actions(function (Grid\Displayers\Actions $actions) {

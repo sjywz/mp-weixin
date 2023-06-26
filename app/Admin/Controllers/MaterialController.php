@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers;
 
 use App\Admin\Repositories\Material;
+use App\Models\Mp;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
@@ -17,10 +18,11 @@ class MaterialController extends AdminController
      */
     protected function grid()
     {
-        return Grid::make(new Material(), function (Grid $grid) {
+        return Grid::make(new Material(['mp']), function (Grid $grid) {
             $grid->model()->orderBy('id', 'desc');
 
             $grid->column('id')->sortable();
+            $grid->column('mp.name','公众号');
             $grid->column('media_id')->width('120px');
             $grid->column('name');
             $grid->column('url')->image('',150);
@@ -32,15 +34,28 @@ class MaterialController extends AdminController
                 0 => 'success',
                 1 => 'danger'
             ]);
-            $grid->column('appid');
-            $grid->column('mid');
             $grid->column('type')->label();
             $grid->column('created_at');
 
             $grid->filter(function (Grid\Filter $filter) {
-                $filter->equal('id');
+                $filter->panel();
+                $filter->expand();
 
+                $mplist = Mp::get()->pluck('name','appid');
+                $filter->equal('appid','公众号')->width(3)->select($mplist);
+                $filter->equal('media_id')->width(3);
+                $filter->equal('is_temp')->width(3)->radio([
+                    0 => '否',
+                    1 => '是',
+                ]);
             });
+
+            $grid->actions(function (Grid\Displayers\Actions $actions) {
+                $actions->disableView();
+                $actions->disableEdit();
+            });
+
+            $grid->disableCreateButton();
         });
     }
 

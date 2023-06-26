@@ -5,6 +5,7 @@ namespace App\Models;
 use Dcat\Admin\Traits\HasDateTimeFormatter;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AutoReply extends Model
 {
@@ -26,4 +27,9 @@ class AutoReply extends Model
         'image' => '图片',
         'voice' => '语音',
     ];
+
+    public function mp(): BelongsTo
+    {
+        return $this->belongsTo(Mp::class, 'appid', 'appid');
+    }
 }

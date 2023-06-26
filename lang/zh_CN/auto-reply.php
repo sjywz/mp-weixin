@@ -11,6 +11,7 @@ return [
         'mp_id' => 'Appid',
         'wight' => '权重',
         'status' => '状态',
+        'context' => '回复内容'
     ],
     'options' => [
     ],

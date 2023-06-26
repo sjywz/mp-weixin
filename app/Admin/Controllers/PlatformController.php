@@ -10,6 +10,7 @@ use Dcat\Admin\Http\Controllers\AdminController;
 use App\Services\WeixinService;
 use Illuminate\Support\Facades\Config;
 use App\Models\Mp;
+use App\Models\Platform as ModelsPlatform;
 use Dcat\Admin\Layout\Column;
 use Dcat\Admin\Layout\Content;
 use Dcat\Admin\Layout\Row;
@@ -48,7 +49,9 @@ class PlatformController extends AdminController
                 });
 
             $grid->filter(function (Grid\Filter $filter) {
-                $filter->equal('id');
+                $filter->panel();
+                $filter->expand();
+                $filter->like('name')->width(3);
             });
 
             $grid->actions(function (Grid\Displayers\Actions $actions) {

@@ -24,11 +24,11 @@ class AutoReplyController extends AdminController
      */
     protected function grid()
     {
-        return Grid::make(new AutoReply(), function (Grid $grid) {
+        return Grid::make(new AutoReply(['mp']), function (Grid $grid) {
             $grid->model()->orderBy('id', 'desc');
 
             $grid->column('id')->sortable();
-            $grid->column('appid');
+            $grid->column('mp.name','公众号');
             $grid->column('type')->using(ModelsAutoReply::$type)->badge();
             $grid->column('key');
             $grid->column('event');
@@ -39,8 +39,16 @@ class AutoReplyController extends AdminController
             $grid->column('updated_at')->sortable();
 
             $grid->filter(function (Grid\Filter $filter) {
-                $filter->equal('id');
+                $filter->panel();
+                $filter->expand();
 
+                $mplist = Mp::get()->pluck('name','appid');
+                $filter->equal('appid','公众号/小程序')->width(3)->select($mplist);
+                $filter->equal('type')->width(3)->select(ModelsAutoReply::$type);
+                $filter->like('key')->width(3);
+            });
+            $grid->actions(function (Grid\Displayers\Actions $actions) {
+                $actions->disableView();
             });
         });
     }
@@ -123,6 +131,9 @@ class AutoReplyController extends AdminController
 
             $form->display('created_at');
             $form->display('updated_at');
+
+            $form->disableViewCheck();
+            $form->disableViewButton();
         })->saving(function(Form $form){
             $context = array_map(function($v){
                 return array_filter($v);

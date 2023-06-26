@@ -3,6 +3,8 @@
 namespace App\Admin\Controllers;
 
 use App\Admin\Repositories\MpMessage;
+use App\Models\Mp;
+use App\Models\MpMessage as ModelsMpMessage;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
@@ -18,12 +20,12 @@ class MpMessageController extends AdminController
      */
     protected function grid()
     {
-        return Grid::make(new MpMessage(), function (Grid $grid) {
+        return Grid::make(new MpMessage(['mp']), function (Grid $grid) {
             $grid->model()->orderBy('id', 'desc');
 
             $grid->column('id')->sortable();
+            $grid->column('mp.name', '公众号');
             $grid->column('type')->label();
-            $grid->column('appid');
             // $grid->column('msgid');
             // $grid->column('from');
             // $grid->column('to');
@@ -52,12 +54,13 @@ class MpMessageController extends AdminController
                 });
 
             $grid->filter(function (Grid\Filter $filter) {
-                $filter->equal('id');
-                $filter->equal('type');
-                $filter->equal('msgid');
-                $filter->equal('event');
-                $filter->equal('appid');
-                $filter->equal('plat_appid');
+                $filter->panel();
+                $filter->expand();
+
+                $mplist = Mp::get()->pluck('name','appid');
+                $filter->equal('appid','公众号')->width(3)->select($mplist);
+                $filter->equal('type')->width(3);
+                $filter->like('from','openid')->width(3);
             });
 
             $grid->actions(function (Grid\Displayers\Actions $actions) {

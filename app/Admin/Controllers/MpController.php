@@ -58,7 +58,13 @@ class MpController extends AdminController
             });
 
             $grid->filter(function (Grid\Filter $filter) {
-                $filter->equal('id');
+                $filter->panel();
+                $filter->expand();
+
+                $mplist = ModelsMp::get()->pluck('name','appid');
+                $filter->equal('appid','公众号/小程序')->width(3)->select($mplist);
+                $filter->equal('type')->width(3)->select(ModelsMp::$type);
+                $filter->like('name')->width(3);
             });
             $grid->actions(function (Grid\Displayers\Actions $actions) {
                 $actions->disableView();
@@ -117,6 +123,9 @@ class MpController extends AdminController
 
             $form->display('created_at');
             $form->display('updated_at');
+
+            $form->disableViewCheck();
+            $form->disableViewButton();
         });
     }
 }
