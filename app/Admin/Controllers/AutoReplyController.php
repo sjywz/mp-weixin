@@ -43,7 +43,7 @@ class AutoReplyController extends AdminController
                 $filter->expand();
 
                 $mplist = Mp::get()->pluck('name','appid');
-                $filter->equal('appid','公众号/小程序')->width(3)->select($mplist);
+                $filter->equal('appid','公众号')->width(3)->select($mplist);
                 $filter->equal('type')->width(3)->select(ModelsAutoReply::$type);
                 $filter->like('key')->width(3);
             });

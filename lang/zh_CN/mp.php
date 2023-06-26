@@ -1,8 +1,8 @@
 <?php
 return [
     'labels' => [
-        'Mp' => '公众号/小程序',
-        'mp' => '公众号/小程序',
+        'Mp' => '公众号',
+        'mp' => '公众号',
     ],
     'fields' => [
         'name' => '名称',
@@ -16,7 +16,7 @@ return [
         'desc' => '简介',
         'plat_appid' => '平台AppID',
         'status' => '状态',
-        'account_type' => '公众号/小程序类型'
+        'account_type' => '类型'
     ],
     'options' => [
     ],
