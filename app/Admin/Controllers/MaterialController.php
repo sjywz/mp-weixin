@@ -8,6 +8,7 @@ use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
 use Dcat\Admin\Http\Controllers\AdminController;
+use Illuminate\Support\Facades\Storage;
 
 class MaterialController extends AdminController
 {
@@ -23,9 +24,21 @@ class MaterialController extends AdminController
 
             $grid->column('id')->sortable();
             $grid->column('mp.name','公众号');
+            // $grid->column('name');
             $grid->column('media_id')->width('120px');
-            $grid->column('name');
             $grid->column('url')->image('',150);
+
+            $grid->column('url')->display(function ($url) {
+                $url = Storage::disk(config('admin.upload.disk'))->url($url);
+                if($this->type == 'image'){
+                    return "<img data-action='preview-img' src='$url' class='img img-thumbnail' style='width:150px'/>";
+                }
+                if($this->type === 'video'){
+                    return "<div style='overflow:auto'><video style='width:200px' src='$url' controls></video></div>";
+                }
+                return "<div style='overflow:auto'><audio src='$url' controls></audio></div>";
+            });
+
             // $grid->column('content');
             $grid->column('is_temp')->using([
                 0 => '否',
