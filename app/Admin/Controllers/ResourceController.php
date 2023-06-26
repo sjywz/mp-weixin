@@ -29,13 +29,15 @@ class ResourceController extends AdminController
             $grid->column('id')->sortable();
             $grid->column('name');
 
-            $grid->column('path')->image();
             $grid->column('path')->display(function ($path) {
                 $url = Storage::disk(config('admin.upload.disk'))->url($path);
                 if($this->type == 1){
-                    return "<img data-action='preview-img' src='$url' class='img img-thumbnail'/>";
+                    return "<img data-action='preview-img' src='$url' class='img img-thumbnail' style='width:150px'/>";
                 }
-                return "<audio src='$url' controls></audio>";
+                if($this->type === 2){
+                    return "<div style='overflow:auto'><video style='width:200px' src='$url' controls></video></div>";
+                }
+                return "<div style='overflow:auto'><audio src='$url' controls></audio></div>";
             });
 
             $grid->column('desc');
