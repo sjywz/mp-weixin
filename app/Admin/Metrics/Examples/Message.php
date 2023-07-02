@@ -7,7 +7,7 @@ use Dcat\Admin\Widgets\Metrics\Round;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class ProductOrders extends Round
+class Message extends Round
 {
     /**
      * 初始化卡片内容

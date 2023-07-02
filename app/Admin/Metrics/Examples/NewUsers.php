@@ -2,8 +2,10 @@
 
 namespace App\Admin\Metrics\Examples;
 
+use App\Models\MpUser;
 use Dcat\Admin\Widgets\Metrics\Line;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class NewUsers extends Line
 {
@@ -16,12 +18,13 @@ class NewUsers extends Line
     {
         parent::init();
 
-        $this->title('New Users');
+        $this->title('新增用户');
         $this->dropdown([
-            '7' => 'Last 7 Days',
-            '28' => 'Last 28 Days',
-            '30' => 'Last Month',
-            '365' => 'Last Year',
+            '7' => '最近7天',
+            '30' => '最近30天',
+            '90' => '最近90天',
+            '180' => '最近180天',
+            '365' => '最近一年',
         ]);
     }
 
@@ -34,38 +37,28 @@ class NewUsers extends Line
      */
     public function handle(Request $request)
     {
-        $generator = function ($len, $min = 10, $max = 300) {
-            for ($i = 0; $i <= $len; $i++) {
-                yield mt_rand($min, $max);
-            }
-        };
+        $option = $request->get('option',7);
 
-        switch ($request->get('option')) {
-            case '365':
-                // 卡片内容
-                $this->withContent(mt_rand(1000, 5000).'k');
-                // 图表数据
-                $this->withChart(collect($generator(30))->toArray());
-                break;
-            case '30':
-                // 卡片内容
-                $this->withContent(mt_rand(400, 1000).'k');
-                // 图表数据
-                $this->withChart(collect($generator(30))->toArray());
-                break;
-            case '28':
-                // 卡片内容
-                $this->withContent(mt_rand(400, 1000).'k');
-                // 图表数据
-                $this->withChart(collect($generator(28))->toArray());
-                break;
-            case '7':
-            default:
-                // 卡片内容
-                $this->withContent('89.2k');
-                // 图表数据
-                $this->withChart([28, 40, 36, 52, 38, 60, 55,]);
+        $startTime = strtotime('-'.($option - 1).' day');
+        $startDate = date('Y-m-d',$startTime);
+        $where = [['created_at','>',$startDate]];
+        $mpUsers = DB::table('mp_users')
+            ->where($where)
+            ->selectRaw('DATE(created_at) AS date,COUNT(id) AS count')
+            ->groupBy('date')
+            ->get();
+
+        $mpUsersCount = DB::table('mp_users')->where($where)->count(['id']);
+        $mpUsersCountOfDate = $mpUsers->pluck('count','date');
+
+        $countList = [];
+        for($i = $option; $i > 0; $i--){
+            $sTime = strtotime('-'.($i - 1).' day');
+            $countList[] = $mpUsersCountOfDate->get(date('Y-m-d',$sTime),0);
         }
+
+        $this->withContent($mpUsersCount);
+        $this->withChart($countList);
     }
 
     /**
