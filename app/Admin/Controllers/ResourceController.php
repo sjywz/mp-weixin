@@ -102,7 +102,10 @@ class ResourceController extends AdminController
                 ->options(ModelsResource::$type)
                 ->default(1);
             $form->text('name')->required();
-            $form->file('path','文件')->autoUpload()->required();
+            $form->file('path','文件')
+                ->autoUpload()
+                ->autoSave(false)
+                ->required();
             $form->number('wight','权重');
             $form->textarea('desc');
 

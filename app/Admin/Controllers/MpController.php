@@ -25,7 +25,7 @@ class MpController extends AdminController
 
             $grid->column('id')->sortable();
             $grid->column('name');
-            $grid->column('icon')->image(50,50);
+            $grid->column('icon')->image('',50,50);
             // $grid->column('plat_appid');
             $grid->column('appid');
             $grid->column('type')->using(ModelsMp::$type)->badge([
@@ -113,7 +113,7 @@ class MpController extends AdminController
         return Form::make(new Mp(), function (Form $form) {
             $form->display('id');
             $form->text('name')->required();
-            $form->image('icon')->autoUpload();
+            $form->image('icon')->autoUpload()->autoSave(false);
             $form->text('appid');
             $form->text('app_secret');
             $form->text('verify_token');

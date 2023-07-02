@@ -93,7 +93,7 @@ class PlatformController extends AdminController
         return Form::make(new Platform(), function (Form $form) {
             $form->display('id');
             $form->text('name')->required();
-            $form->image('icon')->autoUpload();
+            $form->image('icon')->autoUpload()->autoSave(false);
             $form->text('appid')->required();
             $form->text('app_secret')->required();
             $form->text('verify_token')->required();
