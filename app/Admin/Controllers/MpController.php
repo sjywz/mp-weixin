@@ -114,11 +114,11 @@ class MpController extends AdminController
             $form->display('id');
             $form->text('name')->required();
             $form->image('icon')->autoUpload()->autoSave(false);
-            $form->text('appid');
-            $form->text('app_secret');
-            $form->text('verify_token');
+            $form->text('appid')->required();
+            $form->text('app_secret')->required();
+            $form->text('verify_token')->required();
             $form->text('msg_key');
-            $form->radio('type')->options(ModelsMp::$type);
+            $form->radio('type')->options(ModelsMp::$type)->default(0);
             $form->textarea('desc');
 
             $form->display('created_at');
@@ -126,6 +126,14 @@ class MpController extends AdminController
 
             $form->disableViewCheck();
             $form->disableViewButton();
+        })->saving(function($form){
+            if($form->isCreating()){
+                $appid = $form->appid;
+                $mp = ModelsMp::where('appid',$appid)->first(['id','appid']);
+                if($mp){
+                    return $form->response()->error('公众号/小程序已存在，不能重复添加');
+                }
+            }
         });
     }
 }
