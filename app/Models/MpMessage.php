@@ -24,7 +24,8 @@ class MpMessage extends Model
         'content',
         'rest',
         'reply_msgid',
-        'plat_appid'
+        'plat_appid',
+        'sender'
     ];
 
     protected function createTime(): Attribute

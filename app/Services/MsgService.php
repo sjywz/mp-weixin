@@ -55,6 +55,7 @@ class MsgService
             'content' => $content,
             'create_time' => $createTime,
             'plat_appid' => $platAppid,
+            'sender' => 0
         ];
         MpMessage::create($data);
     }

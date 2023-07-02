@@ -20,34 +20,42 @@ class MpMessageController extends AdminController
      */
     protected function grid()
     {
-        return Grid::make(new MpMessage(['mp']), function (Grid $grid) {
+        $message = ModelsMpMessage::with('mp')->where('sender',0);
+        return Grid::make($message, function (Grid $grid) {
             $grid->model()->orderBy('id', 'desc');
 
             $grid->column('id')->sortable();
             $grid->column('mp.name', '公众号');
             $grid->column('type')->label();
-            // $grid->column('msgid');
-            // $grid->column('from');
-            // $grid->column('to');
+            $grid->column('from','发送用户');
             $grid->column('event');
-            // $grid->column('event_key');
-            // $grid->column('plat_appid');
-            // $grid->column('content')->display(function($content){
-            //     return "<div style='width:500px;overflow:auto'>$content</div>";
-            // });
-            // $grid->column('rest');
+            $grid->column('content', '内容')->display(function(){
+                $type = $this->type;
+                if($type === 'text'){
+                    return $this->content;
+                }
+                $content = json_decode($this->content,true);
+                if($type === 'location'){
+                    return $content['Label'];
+                }
+                if($type === 'image'){
+                    return sprintf('<img src="%s" style="max-width:100px"/>',$content['PicUrl']);
+                }
+                if($type === 'voice'){
+                    return $content['MediaId'];
+                }
+                if($type === 'link'){
+                    return sprintf('<a href="%s">%s</a>',$content['Url'],$content['Title']);
+                }
+            });
             $grid->column('create_time');
-            $grid->column('content', '更多')
+            $grid->column('content2', '更多')
                 ->display('查看') // 设置按钮名称
                 ->expand(function () {
                     $content = array_filter([
                         '消息id：'.$this->msgid,
                         '来自：'.$this->from,
                         '发送：'.$this->to,
-                        $this->event_key,
-                        $this->plat_appid,
-                        $this->content,
-                        $this->rest,
                     ]);
                     $card = new Card('', join('<hr>',$content));
                     return "<div style='padding:10px 10px 0'>$card</div>";
