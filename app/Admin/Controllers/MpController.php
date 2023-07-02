@@ -20,13 +20,12 @@ class MpController extends AdminController
      */
     protected function grid()
     {
-        return Grid::make(new Mp(), function (Grid $grid) {
+        return Grid::make(new Mp(['platform']), function (Grid $grid) {
             $grid->model()->orderBy('id', 'desc');
 
             $grid->column('id')->sortable();
             $grid->column('name');
             $grid->column('icon')->image('',50,50);
-            // $grid->column('plat_appid');
             $grid->column('appid');
             $grid->column('type')->using(ModelsMp::$type)->badge([
                 0 => 'primary',
@@ -43,18 +42,29 @@ class MpController extends AdminController
                 19 => 'danger'
             ]);
             // $grid->column('desc');
+            $grid->column('platform.name','授权平台');
             $grid->column('created_at');
             $grid->column('updated_at')->sortable();
             $grid->column('test','更多')->display('查看')->expand(function(){
-                $content = [
-                    '<div><b>平台APPID</b>:'.$this->plat_appid.'</div>',
-                    '<div><b>Secret</b>:'.$this->app_secret.'</div>',
-                    '<div><b>Verify_Token</b>:'.$this->verify_token.'</div>',
-                    '<div><b>Msg_key</b>:'.$this->msg_key.'</div>',
-                    '<div><b>描述</b>:'.$this->desc.'</div>',
-                ];
-                $card = new Card(null, join('',$content));
-                return "<div style='padding:10px 10px 0'>$card</div>";
+                $more = array_filter([
+                    ['name'=>'AppSecret','text'=>$this->app_secret],
+                    ['name'=>'校验Token','text'=>$this->verify_token],
+                    ['name'=>'消息加解密密钥','text'=>$this->msg_key],
+                    ['name'=>'简介','text'=>$this->desc],
+                ], function($v){
+                    return !empty($v['text']);
+                });
+
+                if(!$this->plat_appid){
+                    $more[] = [
+                        'name' => '服务器地址',
+                        'text' => sprintf('%s/mp/%s',env('APP_URL'),$this->appid),
+                    ];
+                }
+                $card = new Card(null, join('',array_map(function($v){
+                    return '<div style="padding:10px;margin:10px;border-bottom:1px solid #efefef;"><b>'.$v['name'].'：</b><span>'.$v['text'].'</span></div>';
+                },$more)));
+                return $card;
             });
 
             $grid->filter(function (Grid\Filter $filter) {
@@ -66,6 +76,7 @@ class MpController extends AdminController
                 $filter->equal('type')->width(3)->select(ModelsMp::$type);
                 $filter->like('name')->width(3);
             });
+            $grid->tools('<a class="btn btn-danger" href="/admin/platform">授权接入</a>');
             $grid->actions(function (Grid\Displayers\Actions $actions) {
                 $actions->disableView();
                 if($this->plat_appid){

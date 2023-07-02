@@ -12,6 +12,7 @@ use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
 use Dcat\Admin\Http\Controllers\AdminController;
+use Dcat\Admin\Widgets\Card;
 
 class AutoReplyController extends AdminController
 {
@@ -29,10 +30,36 @@ class AutoReplyController extends AdminController
 
             $grid->column('id')->sortable();
             $grid->column('mp.name','公众号');
-            $grid->column('type')->using(ModelsAutoReply::$type)->badge();
-            $grid->column('key');
-            $grid->column('event');
-            $grid->column('context');
+            $grid->column('type')->using(ModelsAutoReply::$type)->badge([
+                0 => 'success',
+                1 => 'warning',
+                2 => 'info'
+            ]);
+            $grid->column('key','触发事件/关键词')->display(function(){
+                if($this->type == 0){
+                    $content = join('&nbsp;&nbsp;',array_map(function($v){
+                        return '<span class="label" style="background: black">'.$v.'</span>';
+                    },explode(',',$this->key)));
+                    return $content;
+                }else{
+                    return $this->event;
+                }
+            });
+            $grid->column('context')->display(function(){
+                $replyContent = [];
+                $replyTypeList = ModelsAutoReply::$replyType;
+                foreach($this->context as $v){
+                    $type = $v['reply_type'];
+                    $content = [
+                        ['name'=>'类型','text'=>$replyTypeList[$type] ?: $type],
+                        ['name'=>'内容','text'=>$v[$type]],
+                    ];
+                    $replyContent[] = new Card('',join('',array_map(function($v){
+                        return sprintf('<div><b>%s：</b><span>%s</span></div>',$v['name'],$v['text']);
+                    },$content)));
+                }
+                return join('',$replyContent);
+            });
             $grid->column('wight');
             $grid->column('status')->using($this->status)->label();
             $grid->column('created_at');

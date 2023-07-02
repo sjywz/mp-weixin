@@ -67,4 +67,9 @@ class Mp extends Model
         $relatedModel = AutoReply::class;
         return $this->belongsToMany($relatedModel, $useTable, 'mp_id', 'rule_id');
     }
+
+    public function platform()
+    {
+        return $this->hasOne(Platform::class,'appid','plat_appid');
+    }
 }
