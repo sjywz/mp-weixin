@@ -34,7 +34,9 @@ class MpUserController extends AdminController
                 0 => 'warning',
                 1 => 'success'
             ]);
-            $grid->column('subscribe_time');
+            $grid->column('subscribe_time')->display(function(){
+                return date('Y-m-d H:i:s',$this->subscribe_time);
+            });
             // $grid->column('remark');
             // $grid->column('groupid');
             // $grid->column('tagid_list');

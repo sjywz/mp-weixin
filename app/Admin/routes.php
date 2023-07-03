@@ -26,4 +26,5 @@ Route::group([
     $router->resource('/mp_auto','AutoReplyController');
     $router->resource('/resource','ResourceController');
     $router->resource('/mp_user','MpUserController');
+    $router->resource('/delaymsg','DelayMsgController');
 });
