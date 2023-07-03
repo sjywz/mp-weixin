@@ -5,7 +5,6 @@ namespace App\Jobs;
 use App\Models\Mp;
 use App\Models\MpUser;
 use App\Services\WeixinService;
-use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -44,11 +43,12 @@ class MpUserSave implements ShouldQueue
 
         $mpUser = MpUser::firstWhere('openid', $openid);
         if($mpUser){
+            $mpUser->last_time = date('Y-m-d H:i:s');
             if($mpUser->updated_at->getTimestamp() > strtotime('-7 day')){
                 if($mpUser->subscribe != $state){
                     $mpUser->subscribe = $state;
-                    $mpUser->save();
                 }
+                $mpUser->save();
                 return;
             }
         }else{
@@ -56,6 +56,7 @@ class MpUserSave implements ShouldQueue
             $mpUser->appid = $appid;
             $mpUser->openid = $openid;
             $mpUser->subscribe = $state;
+            $mpUser->last_time = date('Y-m-d H:i:s');
         }
 
         if($state === 0){
@@ -63,11 +64,10 @@ class MpUserSave implements ShouldQueue
         }
 
         try{
-            $client = $this->_getClient();
+            $client   = $this->_getClient();
             $response = $client->get('/cgi-bin/user/info',['openid'=>$openid]);
-            $result = $response->getContent();
+            $result   = $response->getContent();
             $resultArr = json_decode($result, true);
-
             if(empty($resultArr['errcode'])){
                 $mpUser->unionid = $resultArr['unionid'] ?? '';
                 $mpUser->remark  = $resultArr['remark'];
