@@ -48,6 +48,9 @@ class MpUserSave implements ShouldQueue
                 if($mpUser->subscribe != $state){
                     $mpUser->subscribe = $state;
                 }
+                if($event === 'subscribe'){
+                    $mpUser->subscribe_time = time();
+                }
                 $mpUser->save();
                 return;
             }

@@ -1,6 +1,7 @@
 <?php
 namespace App\Services;
 
+use App\Jobs\DelayMsg;
 use App\Jobs\MpUserSave;
 use App\Models\MpMessage;
 use App\Models\PlatformEvent;
@@ -17,12 +18,16 @@ class MsgService
         $event = $message->Event;
         $eventKey = $message->EventKey;
 
-        MpUserSave::dispatch([
+        $jobData = [
             'event' => $event,
             'appid' => $appid,
             'openid' => $openid,
+            'msgType' => $msgType,
             'plat_appid' => $platAppid,
-        ]);
+        ];
+
+        MpUserSave::dispatch($jobData);
+        DelayMsg::dispatch($jobData);
 
         if($msgType === 'text'){
             $content = $message->Content;
