@@ -59,7 +59,7 @@ class AutoRule
                             $bindMsg = DB::table('bind_msg')
                                 ->where('appid',$appid)
                                 ->where('openid',$openid)
-                                ->where('reply_id',$replyRuleId)
+                                // ->where('reply_id',$replyRuleId)
                                 ->select(['id','source_id'])
                                 ->orderBy('id','desc')
                                 ->first();

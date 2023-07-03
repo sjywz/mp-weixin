@@ -21,6 +21,8 @@ class MpUserController extends AdminController
         $mplist = Mp::get()->pluck('name','appid');
 
         return Grid::make(new MpUser(['mp']), function (Grid $grid) use ($mplist) {
+            $grid->model()->orderBy('id', 'desc');
+
             $grid->column('id')->sortable();
             $grid->column('mp.name','公众号');
             $grid->column('openid');

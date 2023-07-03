@@ -120,6 +120,7 @@ class AutoReplyController extends AdminController
             $form->radio('type')->options(ModelsAutoReply::$type)
                 ->when(0, function (Form $form) {
                     $form->textarea('key');
+                    $form->html('<div class="alert alert-success">关键词可添加多个，以英文逗号分割；关键词支持精准匹配；前匹配，关键词以%开头；后匹配，关键词以%结尾；模糊匹配，关键词前后加%</div>');
                 })->when(2, function (Form $form) {
                     $form->text('event');
                 })
@@ -131,7 +132,7 @@ class AutoReplyController extends AdminController
                     ->default('text')
                     ->when('text', function ($table) {
                         $table->textarea('text', '文字');
-                        $table->html('<p>文字中支持变量替换，可用变量有：用户的openid/公众号名称/date/datetime/week/</p>');
+                        // $table->html('<p>文字中支持变量替换，可用变量有：用户的openid/公众号名称/date/datetime/week/</p>');
                     })
                     ->when('image', function ($table) {
                         $table->multipleSelectTable('image', '图片')
@@ -139,10 +140,10 @@ class AutoReplyController extends AdminController
                             ->from(ResourceTable::make(['type'=>1]))
                             ->model(Resource::class, 'id', 'name')
                             ->help('10M，支持PNG\JPEG\JPG\GIF格式');
-                        $table->radio('bind','绑定图片')
-                            ->options([1=>'固定',0=>'随机'])
+                        $table->radio('bind','回复规则')
+                            ->options([1=>'绑定',0=>'随机'])
                             ->default(1)
-                            ->help('固定表示如果用户触发过，后续触发时将使用相同的图片回复；随机则每次按图片权重随机回复');
+                            ->help('绑定表示如果用户触发过，后续触发时将使用相同的图片回复；随机则每次按图片权重随机回复');
                     })
                     ->when('voice', function ($table) {
                         $table->multipleSelectTable('voice', '语音')
@@ -152,7 +153,7 @@ class AutoReplyController extends AdminController
                             ->help('2M，播放长度不超过60s，支持AMR\MP3格式');
                     });
             });
-            $form->divider('注：可以添加多条回复内容，超过5条最多回复5条');
+            $form->divider('注：可以添加多条回复内容，用户回复关键词可回复5条，其他事件或关注最多3条');
             $form->number('wight');
             $form->radio('status')->options($this->status)->default(1);
 
