@@ -55,7 +55,6 @@ class AutoRule
 
     private static function _buildImageOrVoice($isBind, $type, $content, $reourceList, $materialListByUrl, $appid, $openid, $replyRuleId)
     {
-        $isBind = $v['bind'] ?? 0;
         $imageList = array_filter($reourceList,function($v) use ($content){
             if(is_array($content)){
                 return in_array($v->id,$content);
