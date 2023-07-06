@@ -48,11 +48,12 @@ class AutoRule
 
         if($content){
             list($reourceList, $materialListByUrl) = self::_getResource($appid, $content);
-            return self::_buildImageOrVoice($type, $content, $reourceList, $materialListByUrl, $appid, $openid, $replyRuleId);
+            $isBind = $content['bind'] ?? 0;
+            return self::_buildImageOrVoice($isBind, $type, $content, $reourceList, $materialListByUrl, $appid, $openid, $replyRuleId);
         }
     }
 
-    private static function _buildImageOrVoice($type, $content, $reourceList, $materialListByUrl, $appid, $openid, $replyRuleId)
+    private static function _buildImageOrVoice($isBind, $type, $content, $reourceList, $materialListByUrl, $appid, $openid, $replyRuleId)
     {
         $isBind = $v['bind'] ?? 0;
         $imageList = array_filter($reourceList,function($v) use ($content){
@@ -134,7 +135,8 @@ class AutoRule
                         'Content' => $content,
                     ];
                 }else if($type === 'image' || $type == 'voice'){
-                    return self::_buildImageOrVoice($type, $content, $reourceList, $materialListByUrl, $appid, $openid, $replyRuleId);
+                    $isBind = $v['bind'] ?? 0;
+                    return self::_buildImageOrVoice($isBind, $type, $content, $reourceList, $materialListByUrl, $appid, $openid, $replyRuleId);
                 }
             }
             return null;
