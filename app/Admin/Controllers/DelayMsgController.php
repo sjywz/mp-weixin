@@ -29,7 +29,7 @@ class DelayMsgController extends AdminController
             $grid->model()->orderBy('id', 'desc');
 
             $grid->column('id')->sortable();
-            $grid->column('mp.name');
+            $grid->column('mp.name', '公众号');
 
             $grid->column('content')->display(function(){
                 $content = [$this->content];
@@ -57,8 +57,14 @@ class DelayMsgController extends AdminController
             $grid->column('updated_at')->sortable();
 
             $grid->filter(function (Grid\Filter $filter) {
-                $filter->equal('id');
+                $filter->panel();
+                $filter->expand();
 
+                $mplist = Mp::get()->pluck('name','appid');
+                $filter->equal('appid','公众号')->width(3)->select($mplist);
+            });
+            $grid->actions(function (Grid\Displayers\Actions $actions) {
+                $actions->disableView();
             });
         });
     }
@@ -124,9 +130,8 @@ class DelayMsgController extends AdminController
                         ->model(Resource::class, 'id', 'name')
                         ->help('2M，播放长度不超过60s，支持AMR\MP3格式');
                 });
-            $form->number('delay','间隔')->required()
-                ->attribute('min', 1)
-                ->attribute('max', 2880);
+            $form->number('delay','间隔')
+                ->required();
             $form->radio('status')->options($this->status)->default(1);
 
             $form->display('created_at');

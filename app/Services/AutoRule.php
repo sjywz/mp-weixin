@@ -6,17 +6,8 @@ use Illuminate\Support\Facades\DB;
 
 class AutoRule
 {
-    public static function buildContext($appid, $openid, $replyRuleId, $context)
+    private static function _getResource($appid, $resourceIds)
     {
-        $resourceIds = array_reduce(array_filter( array_map(function($v){
-            if($v['reply_type'] != 'text'){
-                return $v[$v['reply_type']];
-            }
-            return null;
-        },$context)),function($p, $c){
-            return array_merge($p,explode(',',$c));
-        },[]);
-
         $reourceList = [];
         $materialListByUrl = [];
         if($resourceIds){
@@ -40,6 +31,99 @@ class AutoRule
             }
         }
 
+        return [$reourceList, $materialListByUrl];
+    }
+
+    public static function delayMsg($appid, $openid, $context, $replyRuleId = 0)
+    {
+        $type = $context['reply_type'];
+        $content = $context[$type];
+
+        if($type === 'text'){
+            return [
+                'MsgType' => $type,
+                'Content' => $content,
+            ];
+        }
+
+        if($content){
+            list($reourceList, $materialListByUrl) = self::_getResource($appid, $content);
+            return self::_buildImageOrVoice($type, $content, $reourceList, $materialListByUrl, $appid, $openid, $replyRuleId);
+        }
+    }
+
+    private static function _buildImageOrVoice($type, $content, $reourceList, $materialListByUrl, $appid, $openid, $replyRuleId)
+    {
+        $isBind = $v['bind'] ?? 0;
+        $imageList = array_filter($reourceList,function($v) use ($content){
+            if(is_array($content)){
+                return in_array($v->id,$content);
+            }
+            return in_array($v->id,explode(',',$content));
+        });
+
+        if($imageList){
+            if($isBind){
+                $bindMsg = DB::table('bind_msg')
+                    ->where('appid',$appid)
+                    ->where('openid',$openid)
+                    // ->where('reply_id',$replyRuleId)
+                    ->select(['id','source_id'])
+                    ->orderBy('id','desc')
+                    ->first();
+                if($bindMsg){
+                    $sourceId = $bindMsg->source_id;
+                    $selectedArr = array_filter($imageList,function($v) use ($sourceId){
+                        return $v->id == $sourceId;
+                    });
+                    if($selectedArr){
+                        $selected = collect($selectedArr)->first();
+                    }
+                }
+            }
+
+            if(empty($selected)){
+                $selected = self::randImg($imageList);
+                if($isBind){
+                    //保存用户回复
+                    DB::table('bind_msg')->insert([
+                        'appid' => $appid,
+                        'openid' => $openid,
+                        'reply_id' => $replyRuleId,
+                        'source_id' => $selected->id,
+                    ]);
+                }
+            }
+
+            $path = collect($selected)->get('path');
+            if(isset($materialListByUrl[$path]) && $materialListByUrl[$path]){
+                $mediaId = $materialListByUrl[$path];
+                return [
+                    'MsgType' => $type,
+                    'MediaId' => $mediaId,
+                ];
+            }else{
+                return [
+                    'MsgType' => $type,
+                    'path' => $path,
+                ];
+            }
+        }
+    }
+
+    public static function buildContext($appid, $openid, $replyRuleId, $context)
+    {
+        $resourceIds = array_reduce(array_filter( array_map(function($v){
+            if($v['reply_type'] != 'text'){
+                return $v[$v['reply_type']];
+            }
+            return null;
+        },$context)),function($p, $c){
+            return array_merge($p,explode(',',$c));
+        },[]);
+
+        list($reourceList, $materialListByUrl) = self::_getResource($appid, $resourceIds);
+
         $replyList = array_map(function($v) use ($reourceList, $materialListByUrl, $appid, $openid, $replyRuleId){
             $type = $v['reply_type'];
             $content = $v[$type];
@@ -50,57 +134,7 @@ class AutoRule
                         'Content' => $content,
                     ];
                 }else if($type === 'image' || $type == 'voice'){
-                    $isBind = $v['bind'] ?? 0;
-                    $imageList = array_filter($reourceList,function($v) use ($content){
-                        return in_array($v->id,explode(',',$content));
-                    });
-                    if($imageList){
-                        if($isBind){
-                            $bindMsg = DB::table('bind_msg')
-                                ->where('appid',$appid)
-                                ->where('openid',$openid)
-                                // ->where('reply_id',$replyRuleId)
-                                ->select(['id','source_id'])
-                                ->orderBy('id','desc')
-                                ->first();
-                            if($bindMsg){
-                                $sourceId = $bindMsg->source_id;
-                                $selectedArr = array_filter($imageList,function($v) use ($sourceId){
-                                    return $v->id == $sourceId;
-                                });
-                                if($selectedArr){
-                                    $selected = collect($selectedArr)->first();
-                                }
-                            }
-                        }
-
-                        if(empty($selected)){
-                            $selected = self::randImg($imageList);
-                            if($isBind){
-                                //保存用户回复
-                                DB::table('bind_msg')->insert([
-                                    'appid' => $appid,
-                                    'openid' => $openid,
-                                    'reply_id' => $replyRuleId,
-                                    'source_id' => $selected->id,
-                                ]);
-                            }
-                        }
-
-                        $path = collect($selected)->get('path');
-                        if(isset($materialListByUrl[$path]) && $materialListByUrl[$path]){
-                            $mediaId = $materialListByUrl[$path];
-                            return [
-                                'MsgType' => $type,
-                                'MediaId' => $mediaId,
-                            ];
-                        }else{
-                            return [
-                                'MsgType' => $type,
-                                'path' => $path,
-                            ];
-                        }
-                    }
+                    return self::_buildImageOrVoice($type, $content, $reourceList, $materialListByUrl, $appid, $openid, $replyRuleId);
                 }
             }
             return null;

@@ -2,6 +2,9 @@
 
 namespace App\Console;
 
+use App\Jobs\WxReply;
+use App\Models\DelayReply;
+use App\Services\AutoRule;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\DB;
@@ -51,10 +54,23 @@ class Kernel extends ConsoleKernel
 
         //查询到期延迟回复执行回复
         $schedule->call(function () {
-            DB::table('delay_reply')
+            $list = DelayReply::with(['msg'])
                 ->where('status',1)
                 ->where('send_time','<',date('Y-m-d H:i:s'))
                 ->get();
+
+            foreach($list as $v){
+                $delayMsg = AutoRule::delayMsg($v->appid, $v['openid'], $v->msg['content']);
+                if($delayMsg){
+                    WxReply::dispatch([ $delayMsg ],[
+                        'appid' => $v->appid,
+                        'openid' => $v->openid,
+                        'reply_msgid' => 0,
+                        'plat_aappid' => $v->plat_appid,
+                    ]);
+                }
+                DelayReply::where('id',$v->id)->delete();
+            }
         })->everyMinute();
     }
 

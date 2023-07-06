@@ -39,7 +39,7 @@ class DelayMsg implements ShouldQueue
         $msgType = $this->data['msgType'];
         $plat_appid = $this->data['plat_appid'];
 
-        if($event === 'subscribe'){
+        if($event == 'subscribe'){
             $delayMsg = ModelsDelayMsg::where('appid',$appid)
                 ->where('status',1)
                 ->get(['id','delay']);
@@ -61,7 +61,7 @@ class DelayMsg implements ShouldQueue
                 }
                 DB::table('delay_reply')->insert($data);
             }
-        }if($event === 'unsubscribe'){
+        }if($event == 'unsubscribe'){
             DB::table('delay_reply')
                 ->where('appid',$appid)
                 ->where('openid',$openid)
