@@ -3,13 +3,14 @@
 ## 基于laravel+Dcat Admin
 
 ### 安装流程
+
 - 安装 `composer install`
 - 修改 `.env.example`为`.env` 修改数据库/站点基础配置
-- 执行 `storage:link` 生产资源软链
-- 执行 `key:generate` 生产加密key
+- 执行 `php artisan storage:link` 生成资源软链
+- 执行 `php artisan key:generate` 生成加密key
 - 执行数据库迁移 `php artisan migrate`
 - 执行基础数据填充 `php artisan db:seed --class=AdminTablesSeeder`
-- 执行 `php admin:create-user` 创建登录账号
+- 执行 `php artisan admin:create-user` 创建登录账号
 
 ## 完成功能
 
