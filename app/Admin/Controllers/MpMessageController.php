@@ -20,7 +20,7 @@ class MpMessageController extends AdminController
      */
     protected function grid()
     {
-        $message = ModelsMpMessage::with('mp')->where('sender',0);
+        $message = ModelsMpMessage::with('mp');//->where('sender',0);
         return Grid::make($message, function (Grid $grid) {
             $grid->model()->orderBy('id', 'desc');
 
@@ -35,6 +35,9 @@ class MpMessageController extends AdminController
                     return $this->content;
                 }
                 $content = json_decode($this->content,true);
+                if($this->sender !== 0){
+                    return $content;
+                }
                 if($type === 'location'){
                     return $content['Label'];
                 }

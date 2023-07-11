@@ -39,8 +39,13 @@ class WxReply implements ShouldQueue
      */
     public function handle()
     {
-        foreach($this->replyData as $v){
-            $this->_sendMsg($v);
+        try{
+            $client = $this->_getClient();
+            foreach($this->replyData as $v){
+                $this->_sendMsg($v, $client);
+            }
+        }catch(\Exception $e){
+            throw new \Exception($e->getMessage(),10000);
         }
     }
 
@@ -67,14 +72,12 @@ class WxReply implements ShouldQueue
         return $client;
     }
 
-    private function _sendMsg($reply)
+    private function _sendMsg($reply, $client)
     {
         $appid = $this->mpAndUserInfo['appid'];
         $platAappid = $this->mpAndUserInfo['plat_aappid'];
         $replyMsgId = $this->mpAndUserInfo['reply_msgid'];
         $openid = $this->mpAndUserInfo['openid'];
-
-        $client = $this->_getClient();
 
         $type = $reply['MsgType'];
         $data = [
