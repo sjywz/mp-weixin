@@ -40,10 +40,10 @@ class Resource2Media
                         throw new Exception(json_encode($result));
                     }
                 }catch(\Exception $e){
-                    throw $e->getMessage();
+                    throw new Exception($e->getMessage(),10002);
                 }
             }else{
-                throw new Exception($path.'文件不存在');
+                throw new Exception($path.'文件不存在',10003);
             }
         }
     }
