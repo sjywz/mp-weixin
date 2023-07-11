@@ -16,7 +16,7 @@ class CreateResourceTable extends Migration
         Schema::create('resource', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
-            $table->string('path');
+            $table->string('path')->nullable();
             $table->string('desc')->nullable();
             $table->string('media_id')->nullable();
             $table->integer('wight')->default(0);
