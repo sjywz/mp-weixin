@@ -10,7 +10,6 @@ use Dcat\Admin\Http\Controllers\AdminController;
 use App\Services\WeixinService;
 use Illuminate\Support\Facades\Config;
 use App\Models\Mp;
-use App\Models\Platform as ModelsPlatform;
 use Dcat\Admin\Layout\Column;
 use Dcat\Admin\Layout\Content;
 use Dcat\Admin\Layout\Row;
@@ -26,7 +25,9 @@ class PlatformController extends AdminController
      */
     protected function grid()
     {
-        return Grid::make(new Platform(), function (Grid $grid) {
+        $public_ip = file_get_contents('https://api.ipify.org');
+
+        return Grid::make(new Platform(), function (Grid $grid) use ($public_ip){
             $grid->model()->orderBy('id', 'desc');
 
             $grid->column('id')->sortable();
@@ -39,13 +40,21 @@ class PlatformController extends AdminController
             // $grid->column('desc');
             $grid->column('created_at');
             $grid->column('updated_at')->sortable();
-            $grid->column('content', '详情')
+            $grid->column('content', '对接信息')
                 ->display('查看') // 设置按钮名称
-                ->expand(function () {
-                    $card = new Card('详情', $this->verify_token);
-                    // $card[] = new Card(null, $this->msg_key);
-                    // $card[] = new Card(null, $this->desc);
-                    return "<div style='padding:10px 10px 0'>$card</div>";
+                ->expand(function () use ($public_ip) {
+                    $content = [
+                        ['title'=>'授权事件接收','value'=>sprintf('%s/platauth/%s',env('APP_URL'),$this->appid)],
+                        ['title'=>'消息与事件接收','value'=>sprintf('%s/platmsg/%s/$APPID$',env('APP_URL'),$this->appid)],
+                        ['title'=>'消息校验Token','value'=>$this->verify_token],
+                        ['title'=>'消息加解密Key','value'=>$this->msg_key],
+                        ['title'=>'授权发起页/公众号开发/小程序服务器/小程序业务域名','value'=>env('APP_URL')],
+                        ['title'=>'IP白名单','value'=>$public_ip]
+                    ];
+                    $card = new Card(null, join('',array_map(function($v){
+                        return '<div style="padding:10px;margin:10px;border-bottom:1px solid #efefef;"><b>'.$v['title'].'：</b><span>'.$v['value'].'</span></div>';
+                    },$content)));
+                    return $card;
                 });
 
             $grid->filter(function (Grid\Filter $filter) {
@@ -55,8 +64,11 @@ class PlatformController extends AdminController
             });
 
             $grid->actions(function (Grid\Displayers\Actions $actions) {
+                $actions->disableView();
+                $actions->disableDelete();
                 $actions->append(sprintf('<a href="/admin/platform/auth/%s" target="_blank" class="btn btn-sm btn-warning">授权账号</a>',$this->id));
             });
+            $grid->disableBatchActions();
         });
     }
 
@@ -102,6 +114,10 @@ class PlatformController extends AdminController
 
             $form->display('created_at');
             $form->display('updated_at');
+
+            $form->disableViewCheck();
+            $form->disableViewButton();
+            $form->disableDeleteButton();
         });
     }
 

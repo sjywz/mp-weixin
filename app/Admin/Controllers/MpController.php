@@ -20,7 +20,9 @@ class MpController extends AdminController
      */
     protected function grid()
     {
-        return Grid::make(new Mp(['platform']), function (Grid $grid) {
+        $public_ip = file_get_contents('https://api.ipify.org');
+
+        return Grid::make(new Mp(['platform']), function (Grid $grid) use ($public_ip){
             $grid->model()->orderBy('id', 'desc');
 
             $grid->column('id')->sortable();
@@ -45,27 +47,29 @@ class MpController extends AdminController
             $grid->column('platform.name','授权平台');
             $grid->column('created_at');
             $grid->column('updated_at')->sortable();
-            $grid->column('test','更多')->display('查看')->expand(function(){
-                $more = array_filter([
-                    ['name'=>'AppSecret','text'=>$this->app_secret],
-                    ['name'=>'校验Token','text'=>$this->verify_token],
-                    ['name'=>'消息加解密密钥','text'=>$this->msg_key],
-                    ['name'=>'简介','text'=>$this->desc],
-                ], function($v){
-                    return !empty($v['text']);
-                });
+            $grid->column('test','更多')
+                ->display('查看')
+                ->expand(function() use($public_ip){
+                    $more = array_filter([
+                        ['name'=>'AppSecret','text'=>$this->app_secret],
+                        ['name'=>'校验Token','text'=>$this->verify_token],
+                        ['name'=>'消息加解密密钥','text'=>$this->msg_key],
+                        ['name'=>'简介','text'=>$this->desc],
+                    ], function($v){
+                        return !empty($v['text']);
+                    });
 
-                if(!$this->plat_appid){
-                    $more[] = [
-                        'name' => '服务器地址',
-                        'text' => sprintf('%s/mp/%s',env('APP_URL'),$this->appid),
-                    ];
-                }
-                $card = new Card(null, join('',array_map(function($v){
-                    return '<div style="padding:10px;margin:10px;border-bottom:1px solid #efefef;"><b>'.$v['name'].'：</b><span>'.$v['text'].'</span></div>';
-                },$more)));
-                return $card;
-            });
+                    if(!$this->plat_appid){
+                        $auth = sprintf('%s/mp/%s',env('APP_URL'),$this->appid);
+                        $more[] = ['name' => '服务器地址', 'text' => $auth];
+                        $more[] = ['name' => 'IP白名单','text' => $public_ip];
+                    }
+
+                    $card = new Card(null, join('',array_map(function($v){
+                        return '<div style="padding:10px;margin:10px;border-bottom:1px solid #efefef;"><b>'.$v['name'].'：</b><span>'.$v['text'].'</span></div>';
+                    },$more)));
+                    return $card;
+                });
 
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->panel();
