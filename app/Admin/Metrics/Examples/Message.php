@@ -37,8 +37,9 @@ class Message extends Round
 
         $message = DB::table('mp_message')
             ->where($where)
-            ->selectRaw('appid,COUNT(id) AS count')
-            ->groupBy('appid')
+            ->join('mp', 'mp.appid', '=', 'mp_message.appid')
+            ->selectRaw('mp.appid,COUNT(mp_message.id) AS count')
+            ->groupBy('mp.appid')
             ->get();
 
         $messageCountOfAppid = $message->pluck('count','appid')->toArray();
@@ -50,7 +51,7 @@ class Message extends Round
 
             $mpOfAppid = $mp->pluck('name','appid')->toArray();
             $mpNameList = array_map(function($v) use ($mpOfAppid){
-                return $mpOfAppid[$v];
+                return $mpOfAppid[$v] ?? '';
             },$appids);
         }
 
