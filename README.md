@@ -11,6 +11,7 @@
 - 执行数据库迁移 `php artisan migrate`
 - 执行基础数据填充 `php artisan db:seed --class=AdminTablesSeeder`
 - 执行 `php artisan admin:create-user` 创建登录账号
+- 添加队列进程 `php artisan queue:work` [更多](https://learnku.com/docs/laravel/10.x/queues/14873#4d24a9)
 
 - 开启https访问,请修改.env配置`ADMIN_HTTPS=true`
 
