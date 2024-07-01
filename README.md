@@ -12,6 +12,8 @@
 - 执行基础数据填充 `php artisan db:seed --class=AdminTablesSeeder`
 - 执行 `php artisan admin:create-user` 创建登录账号
 
+- 开启https访问,请修改.env配置`ADMIN_HTTPS=true`
+
 ## 完成功能
 
 - 公众号对接开放平台/原始对接
